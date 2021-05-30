@@ -1,26 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useReducer } from "react";
+import GlobalStyle from "./globalStyles";
+import "./App.css";
+import { Container } from "./containers/Container";
+import { Switch, Route, Redirect } from "react-router-dom";
+import { InitPage } from "./pages/InitPage";
+import { ConfigPage } from "./pages/ConfigPage";
 
-function App() {
+const App: React.FC = () => {
+  // const [] = useReducer();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyle />
+      <Container>
+        <Switch>
+          <Route path="/" exact>
+            <InitPage />
+          </Route>
+          <Route path="/config">
+            <ConfigPage />
+          </Route>
+          <Redirect to="/" />
+        </Switch>
+      </Container>
+    </>
   );
-}
+};
 
 export default App;
