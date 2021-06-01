@@ -5,6 +5,7 @@ const GlobalStyle = createGlobalStyle`
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        font-family: 'Poppins', sans-serif !important;
     };
     :root{
         --inactive-dark-color: #C5C5C5;
@@ -14,14 +15,9 @@ const GlobalStyle = createGlobalStyle`
         --primary-button-color: rgb(119, 26, 17);
         --top-bottom-margin: 0.8em;
         --right-left-margin: 1.5em;
-        --primary-font-family: font-family: 'Lato', Helvetica, sans-serif;
         font-size: 16px;
         color: var(--active-dark-color)
     };
-    
-    body{
-        font-family: var(--primary-font-family) !important;
-    }
 `;
 
 export default GlobalStyle;
