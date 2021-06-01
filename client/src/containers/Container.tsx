@@ -9,7 +9,17 @@ const MainContainer = styled.div`
   max-width: 1024px;
   height: 100vh;
   margin: 0 auto;
-  /* background-color: grey; */
+
+  .fade-enter {
+    opacity: 0.01;
+    margin-top: 30em;
+  }
+
+  .fade-enter.fade-enter-active {
+    opacity: 1;
+    transition: opacity 200ms ease-in, margin 300ms ease-in;
+    margin-top: 0;
+  }
 `;
 
 export const Container: React.FC = ({ children }) => {

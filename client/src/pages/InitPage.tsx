@@ -18,16 +18,14 @@ export const InitPage: React.FC = () => {
     history.push("/config");
   };
   return (
-    <div className="pageWrapper">
-      <form action="" onSubmit={handleSubmit}>
-        <TextInput placeholder="Your poll name..." name="poll name" />
-        <CheckBoxGroup>
-          <Checkbox name="anonym" label="Anonymous voting" />
-          <Checkbox name="multans" label="Multiple answers" />
-        </CheckBoxGroup>
-        <TextInput placeholder="Your username..." name="username" />
-        <ContinueButton />
-      </form>
-    </div>
+    <form action="" onSubmit={handleSubmit}>
+      <TextInput placeholder="Your poll name..." name="poll name" />
+      <CheckBoxGroup>
+        <Checkbox name="anonym" label="Anonymous voting" />
+        <Checkbox name="multans" label="Multiple answers" />
+      </CheckBoxGroup>
+      <TextInput placeholder="Your username..." name="username" />
+      <ContinueButton />
+    </form>
   );
 };

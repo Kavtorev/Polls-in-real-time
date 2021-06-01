@@ -16,6 +16,7 @@ const GlobalStyle = createGlobalStyle`
         --right-left-margin: 1.5em;
         --primary-font-family: font-family: 'Lato', Helvetica, sans-serif;
         font-size: 16px;
+        color: var(--active-dark-color)
     };
     
     body{
