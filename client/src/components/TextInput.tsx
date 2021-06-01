@@ -11,8 +11,6 @@ const Input = styled.input`
   margin-bottom: var(--top-bottom-margin);
 
   &:focus {
-    border-bottom-color: var(--active-dark-color);
-    color: var(--active-dark-color);
     outline: 0;
     transition: all ease 0.4s;
   }
@@ -24,13 +22,35 @@ const Input = styled.input`
   &::placeholder {
     font-style: italic;
   }
+
+  &:not(:placeholder-shown),
+  &:focus {
+    color: var(--active-dark-color);
+    border-bottom-color: var(--active-dark-color);
+  }
 `;
 
 interface Props {
   placeholder: string;
   name: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  value: string;
 }
 
-export const TextInput: React.FC<Props> = ({ placeholder, name }) => {
-  return <Input placeholder={placeholder} name={name} type="text" required />;
+export const TextInput: React.FC<Props> = ({
+  placeholder,
+  name,
+  onChange,
+  value,
+}) => {
+  return (
+    <Input
+      placeholder={placeholder}
+      name={name}
+      type="text"
+      required
+      value={value}
+      onChange={onChange}
+    />
+  );
 };

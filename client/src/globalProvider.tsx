@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useContext, useReducer } from "react";
 type ChoiceType = {
   id: string;
   text: string;
@@ -14,13 +14,15 @@ type ActionsTypes =
       payload: "multipleAnswers" | "anonymousVoting";
     }
   | { type: "addChoice"; payload: ChoiceType }
-  | { type: "removeChoice"; payload: string };
+  | { type: "removeChoice"; payload: string }
+  | { type: "setPollName"; payload: string }
+  | { type: "setPollQuestion"; payload: string };
 
 type InitialStateType = {
   pollName: string;
   multipleAnswers: boolean;
   anonymousVoting: boolean;
-  username: string | null;
+  username: string;
   pollQuestion: string;
   pollChoices: Array<ChoiceType>;
 };
@@ -29,15 +31,19 @@ let initialState = {
   pollName: "",
   multipleAnswers: false,
   anonymousVoting: false,
-  username: null,
+  username: "",
   pollQuestion: "",
   pollChoices: [],
 };
 
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
+    case "setPollQuestion":
+      return { ...state, pollquestion: action.payload };
     case "setUsername":
       return { ...state, username: action.payload };
+    case "setPollName":
+      return { ...state, pollName: action.payload };
     case "addChoice":
       return {
         ...state,
@@ -60,7 +66,7 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
 
 const globalContext = createContext<{
   state: InitialStateType;
-  dispatch: React.Dispatch<any>;
+  dispatch: React.Dispatch<ActionsTypes>;
 }>({ state: initialState, dispatch: () => null });
 
 export const GlobalProvider: React.FC = ({ children }) => {
@@ -71,3 +77,5 @@ export const GlobalProvider: React.FC = ({ children }) => {
     </globalContext.Provider>
   );
 };
+
+export const usePollContext = () => useContext(globalContext);

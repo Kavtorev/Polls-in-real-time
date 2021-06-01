@@ -21,10 +21,20 @@ const GreenCheckbox = withStyles({
 interface Props {
   label: string;
   name: string;
+  onChange: () => void;
+  [x: string]: any;
 }
 
-export const Checkbox: React.FC<Props> = ({ label, name }) => {
+export const Checkbox: React.FC<Props> = ({
+  label,
+  name,
+  onChange,
+  ...rest
+}) => {
   return (
-    <FormControlLabel control={<GreenCheckbox name={name} />} label={label} />
+    <FormControlLabel
+      control={<GreenCheckbox name={name} onChange={onChange} {...rest} />}
+      label={label}
+    />
   );
 };

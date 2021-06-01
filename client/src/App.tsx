@@ -7,12 +7,34 @@ import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { InitPage } from "./pages/InitPage";
 import { ConfigPage } from "./pages/ConfigPage";
 import { GlobalProvider } from "./globalProvider";
+import { ToastContainer, Slide } from "react-toastify";
+import styled from "styled-components";
+import "react-toastify/dist/ReactToastify.css";
+
+const StyledToastContainer = styled(ToastContainer)`
+  .Toastify__toast {
+    border: 3px solid var(--primary-button-backgroundColor);
+  }
+  .Toastify__toast-body {
+    color: var(--primary-button-color);
+    text-align: center;
+  }
+
+  .Toastify__progress-bar {
+    background: var(--primary-button-backgroundColor);
+  }
+`;
 
 const App: React.FC = () => {
   let location = useLocation();
   return (
     <GlobalProvider>
       <GlobalStyle />
+      <StyledToastContainer
+        position="bottom-center"
+        autoClose={2500}
+        transition={Slide}
+      />
       <Container>
         <TransitionGroup>
           <CSSTransition

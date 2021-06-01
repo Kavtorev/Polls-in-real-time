@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { TextInput } from "../components/TextInput";
 import { ContinueButton } from "../components/ContinueButton";
 import { Checkbox } from "../components/Checkbox";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
+import { usePollContext } from "../globalProvider";
+import { toast } from "react-toastify";
 
 const CheckBoxGroup = styled.div`
   display: flex;
@@ -12,19 +14,66 @@ const CheckBoxGroup = styled.div`
 
 export const InitPage: React.FC = () => {
   const history = useHistory();
+  const { state, dispatch } = usePollContext();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    history.push("/config");
+    const pollName = state.pollName.trim();
+    const username = state.username.trim();
+
+    if (pollName && (username || state.anonymousVoting)) {
+      history.push("/config");
+      return;
+    }
+    toast("Please fill all the fields");
+    return;
   };
+
+  const handleOnPollNameChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    dispatch({ type: "setPollName", payload: event.target.value });
+  const handleOnUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    dispatch({ type: "setUsername", payload: event.target.value });
+
   return (
     <form action="" onSubmit={handleSubmit}>
-      <TextInput placeholder="Your poll name..." name="poll name" />
+      <TextInput
+        placeholder="Your poll's name..."
+        name="pollName"
+        onChange={handleOnPollNameChange}
+        value={state.pollName}
+      />
       <CheckBoxGroup>
-        <Checkbox name="anonym" label="Anonymous voting" />
-        <Checkbox name="multans" label="Multiple answers" />
+        <Checkbox
+          name="anonymousVoting"
+          label="Anonymous voting"
+          checked={state.anonymousVoting}
+          onChange={() =>
+            dispatch({
+              type: "setConfigurationOption",
+              payload: "anonymousVoting",
+            })
+          }
+        />
+        <Checkbox
+          name="multipleAnswers"
+          label="Multiple answers"
+          checked={state.multipleAnswers}
+          onChange={() =>
+            dispatch({
+              type: "setConfigurationOption",
+              payload: "multipleAnswers",
+            })
+          }
+        />
       </CheckBoxGroup>
-      <TextInput placeholder="Your username..." name="username" />
+      {!state.anonymousVoting && (
+        <TextInput
+          placeholder="Your username..."
+          name="username"
+          onChange={handleOnUsernameChange}
+          value={state.username}
+        />
+      )}
       <ContinueButton />
     </form>
   );
