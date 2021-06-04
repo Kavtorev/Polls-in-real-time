@@ -32,7 +32,7 @@ const App: React.FC = () => {
       <GlobalStyle />
       <StyledToastContainer
         position="bottom-center"
-        autoClose={2500}
+        autoClose={1200}
         transition={Slide}
       />
       <Container>

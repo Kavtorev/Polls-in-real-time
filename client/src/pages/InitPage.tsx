@@ -1,6 +1,7 @@
-import React from "react";
-import { TextInput } from "../components/TextInput";
+import React, { useEffect, useRef } from "react";
+import { StyledTextInput as TextInput } from "../components/TextInput";
 import { ContinueButton } from "../components/ContinueButton";
+import { CheckboxLabel } from "../components/CheckboxLabel";
 import { Checkbox } from "../components/Checkbox";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
@@ -13,8 +14,8 @@ const CheckBoxGroup = styled.div`
 `;
 
 export const InitPage: React.FC = () => {
-  const history = useHistory();
   const { state, dispatch } = usePollContext();
+  const history = useHistory();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,34 +38,38 @@ export const InitPage: React.FC = () => {
   return (
     <form action="" onSubmit={handleSubmit}>
       <TextInput
-        placeholder="Your poll's name..."
+        autoFocus={true}
+        placeholder="polls' name..."
         name="pollName"
         onChange={handleOnPollNameChange}
         value={state.pollName}
       />
       <CheckBoxGroup>
-        <Checkbox
-          name="anonymousVoting"
-          label="Anonymous voting"
-          checked={state.anonymousVoting}
-          onChange={() =>
-            dispatch({
-              type: "setConfigurationOption",
-              payload: "anonymousVoting",
-            })
-          }
-        />
-        <Checkbox
-          name="multipleAnswers"
-          label="Multiple answers"
-          checked={state.multipleAnswers}
-          onChange={() =>
-            dispatch({
-              type: "setConfigurationOption",
-              payload: "multipleAnswers",
-            })
-          }
-        />
+        <CheckboxLabel label="Anonymous voting">
+          <Checkbox
+            name="anonymousVoting"
+            checked={state.anonymousVoting}
+            onChange={() =>
+              dispatch({
+                type: "setConfigurationOption",
+                payload: "anonymousVoting",
+              })
+            }
+          />
+        </CheckboxLabel>
+
+        <CheckboxLabel label="Multiple answers">
+          <Checkbox
+            name="multipleAnswers"
+            checked={state.multipleAnswers}
+            onChange={() =>
+              dispatch({
+                type: "setConfigurationOption",
+                payload: "multipleAnswers",
+              })
+            }
+          />
+        </CheckboxLabel>
       </CheckBoxGroup>
       {!state.anonymousVoting && (
         <TextInput

@@ -1,56 +1,30 @@
-import React from "react";
 import styled from "styled-components";
 
-const Input = styled.input`
+export const StyledTextInput = styled.input`
   width: 500px;
   height: 55px;
   color: var(--inactive-dark-color);
   border: 0;
   border-bottom: 2px solid var(--inactive-dark-color);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   margin-bottom: var(--top-bottom-margin);
 
-  &:focus {
+  :focus {
     outline: 0;
     transition: all ease 0.4s;
   }
 
-  &:not(:focus) {
+  :not(:focus) {
     transition: all ease 0.4s;
   }
 
-  &::placeholder {
+  ::placeholder {
     font-style: italic;
   }
 
-  &:not(:placeholder-shown),
-  &:focus {
+  :not(:placeholder-shown),
+  :focus {
     color: var(--active-dark-color);
     border-bottom-color: var(--active-dark-color);
   }
 `;
-
-interface Props {
-  placeholder: string;
-  name: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  value: string;
-}
-
-export const TextInput: React.FC<Props> = ({
-  placeholder,
-  name,
-  onChange,
-  value,
-}) => {
-  return (
-    <Input
-      placeholder={placeholder}
-      name={name}
-      type="text"
-      required
-      value={value}
-      onChange={onChange}
-    />
-  );
-};
