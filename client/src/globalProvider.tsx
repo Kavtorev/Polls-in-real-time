@@ -13,10 +13,11 @@ type ActionsTypes =
       type: "setConfigurationOption";
       payload: "multipleAnswers" | "anonymousVoting";
     }
-  | { type: "addChoice"; payload: ChoiceType }
-  | { type: "removeChoice"; payload: string }
+  | { type: "addOption"; payload: ChoiceType }
+  | { type: "removeOption"; payload: string }
   | { type: "setPollName"; payload: string }
-  | { type: "setPollQuestion"; payload: string };
+  | { type: "setPollQuestion"; payload: string }
+  | { type: "shuffleOptions"; payload: Array<ChoiceType> };
 
 type InitialStateType = {
   pollName: string;
@@ -24,16 +25,17 @@ type InitialStateType = {
   anonymousVoting: boolean;
   username: string;
   pollQuestion: string;
-  pollChoices: Array<ChoiceType>;
+  pollOptions: Array<ChoiceType>;
 };
 
 let initialState = {
+  isPageTransitionHappening: false,
   pollName: "",
   multipleAnswers: false,
   anonymousVoting: false,
   username: "",
   pollQuestion: "",
-  pollChoices: [],
+  pollOptions: [],
 };
 
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
@@ -44,19 +46,24 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
       return { ...state, username: action.payload };
     case "setPollName":
       return { ...state, pollName: action.payload };
-    case "addChoice":
+    case "addOption":
       return {
         ...state,
-        pollChoices: state.pollChoices.concat(action.payload),
+        pollOptions: state.pollOptions.concat(action.payload),
+      };
+    case "shuffleOptions":
+      return {
+        ...state,
+        pollOptions: action.payload,
       };
     case "setConfigurationOption":
       const newState = { ...state };
       newState[action.payload] = !newState[action.payload];
       return newState;
-    case "removeChoice":
+    case "removeOption":
       return {
         ...state,
-        pollChoices: state.pollChoices.filter((e) => e.id !== action.payload),
+        pollOptions: state.pollOptions.filter((e) => e.id !== action.payload),
       };
 
     default:
