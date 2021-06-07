@@ -5,7 +5,7 @@ import { Container } from "./containers/Container";
 import { Switch, Route, Redirect, useLocation } from "react-router-dom";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { InitPage } from "./pages/InitPage";
-import { ConfigPage } from "./pages/ConfigPage";
+import { ConfigPage as ProtectedConfigPage } from "./pages/ConfigPage";
 import { GlobalProvider } from "./globalProvider";
 import { ToastContainer, Slide } from "react-toastify";
 import styled from "styled-components";
@@ -25,8 +25,17 @@ const StyledToastContainer = styled(ToastContainer)`
   }
 `;
 
+const InnerContainer = styled.div`
+  width: 500px;
+  @media only screen and (max-width: 600px) {
+    width: 100%;
+    padding: 1em;
+  }
+`;
+
 const App: React.FC = () => {
   let location = useLocation();
+
   return (
     <GlobalProvider>
       <GlobalStyle />
@@ -36,23 +45,23 @@ const App: React.FC = () => {
         transition={Slide}
       />
       <Container>
-        <TransitionGroup>
-          <CSSTransition
-            timeout={{ enter: 400, exit: 0 }}
-            classNames="fade"
-            key={location.key}
-          >
-            <Switch location={location}>
-              <Route path="/" exact>
-                <InitPage />
-              </Route>
-              <Route path="/config">
-                <ConfigPage />
-              </Route>
-              <Redirect to="/" />
-            </Switch>
-          </CSSTransition>
-        </TransitionGroup>
+        <InnerContainer>
+          <TransitionGroup>
+            <CSSTransition
+              timeout={{ enter: 400, exit: 0 }}
+              classNames="fade"
+              key={location.key}
+            >
+              <Switch location={location}>
+                <Route path="/" exact>
+                  <InitPage />
+                </Route>
+                <ProtectedConfigPage />
+                <Redirect to="/" />
+              </Switch>
+            </CSSTransition>
+          </TransitionGroup>
+        </InnerContainer>
       </Container>
     </GlobalProvider>
   );

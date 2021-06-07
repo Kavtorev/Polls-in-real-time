@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const StyledTextInput = styled.input`
-  width: 500px;
+  width: 100%;
   height: 55px;
   color: var(--inactive-dark-color);
   border: 0;
@@ -26,5 +26,9 @@ export const StyledTextInput = styled.input`
   :focus {
     color: var(--active-dark-color);
     border-bottom-color: var(--active-dark-color);
+  }
+
+  :disabled {
+    background-color: transparent;
   }
 `;

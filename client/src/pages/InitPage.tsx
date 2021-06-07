@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { StyledTextInput as TextInput } from "../components/TextInput";
 import { ContinueButton } from "../components/ContinueButton";
 import { CheckboxLabel } from "../components/CheckboxLabel";
@@ -7,11 +7,23 @@ import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 import { usePollContext } from "../globalProvider";
 import { toast } from "react-toastify";
+import { InitialStateType } from "../globalProvider";
 
 const CheckBoxGroup = styled.div`
   display: flex;
   justify-content: space-around;
+  flex-wrap: wrap;
+  @media only screen and (max-width: 600px) {
+    justify-content: start;
+    align-items: center;
+  }
 `;
+
+export const validateInitPage = (state: InitialStateType) => {
+  return (
+    state.pollName.trim() && (state.username.trim() || state.anonymousVoting)
+  );
+};
 
 export const InitPage: React.FC = () => {
   const { state, dispatch } = usePollContext();
@@ -19,10 +31,8 @@ export const InitPage: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const pollName = state.pollName.trim();
-    const username = state.username.trim();
 
-    if (pollName && (username || state.anonymousVoting)) {
+    if (validateInitPage(state)) {
       history.push("/config");
       return;
     }
@@ -57,7 +67,6 @@ export const InitPage: React.FC = () => {
             }
           />
         </CheckboxLabel>
-
         <CheckboxLabel label="Multiple answers">
           <Checkbox
             name="multipleAnswers"

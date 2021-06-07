@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import { Truncate } from "./Truncate";
+import Tooltip from "@material-ui/core/Tooltip";
 
 const StyledOption = styled.div`
   display: flex;
@@ -8,15 +10,24 @@ const StyledOption = styled.div`
   font-size: 1.3rem;
   border-bottom: 1px solid var(--inactive-dark-color);
   padding: var(--top-bottom-padding) 0;
+  ${Truncate}
+`;
+
+const StyledText = styled.span`
+  width: 90%;
+  ${Truncate}
 `;
 
 export const OptionItem: React.FC<{
   text: string;
   children: React.ReactElement;
 }> = ({ text, children }) => {
+  console.log(Truncate);
   return (
     <StyledOption>
-      {text}
+      <Tooltip title={text} placement="right-start" arrow>
+        <StyledText>{text}</StyledText>
+      </Tooltip>
       {children}
     </StyledOption>
   );
