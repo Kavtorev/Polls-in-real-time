@@ -17,11 +17,13 @@ type ActionsTypes =
   | { type: "removeOption"; payload: string }
   | { type: "setPollName"; payload: string }
   | { type: "setPollQuestion"; payload: string }
-  | { type: "shuffleOptions"; payload: Array<ChoiceType> };
+  | { type: "shuffleOptions"; payload: Array<ChoiceType> }
+  | { type: "removeAllOptions" };
 
-type InitialStateType = {
+export type InitialStateType = {
   pollName: string;
   multipleAnswers: boolean;
+  isLimitReached: boolean;
   anonymousVoting: boolean;
   username: string;
   pollQuestion: string;
@@ -29,6 +31,7 @@ type InitialStateType = {
 };
 
 let initialState = {
+  isLimitReached: false,
   isPageTransitionHappening: false,
   pollName: "",
   multipleAnswers: false,
@@ -37,6 +40,8 @@ let initialState = {
   pollQuestion: "",
   pollOptions: [],
 };
+
+export const OPTIONS_LIMIT = 5;
 
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
@@ -50,6 +55,7 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
       return {
         ...state,
         pollOptions: state.pollOptions.concat(action.payload),
+        isLimitReached: state.pollOptions.length + 2 > OPTIONS_LIMIT,
       };
     case "shuffleOptions":
       return {
@@ -64,7 +70,10 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
       return {
         ...state,
         pollOptions: state.pollOptions.filter((e) => e.id !== action.payload),
+        isLimitReached: false,
       };
+    case "removeAllOptions":
+      return { ...state, pollOptions: [] };
 
     default:
       throw new Error("Invalid action type");

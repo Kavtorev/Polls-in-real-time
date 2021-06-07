@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { usePollContext } from "../globalProvider";
+import { usePollContext, OPTIONS_LIMIT } from "../globalProvider";
 import { PlusIcon } from "../icons/PlusIcon";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
@@ -12,8 +12,22 @@ const StyledOptionInput = styled(TextInput)`
   border: 0;
 `;
 
+const Form = styled.form`
+  display: flex;
+  align-items: baseline;
+  position: relative;
+`;
+
+const StyledLabel = styled.label`
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  font-size: 0.9rem;
+  color: var(--inactive-dark-color);
+`;
+
 export const OptionHolder: React.FC = () => {
-  let { dispatch } = usePollContext();
+  let { state, dispatch } = usePollContext();
   let [option, setOption] = useState("");
 
   let handleOnOptionChange = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -23,7 +37,7 @@ export const OptionHolder: React.FC = () => {
     event: React.FormEvent<HTMLFormElement> | React.MouseEvent
   ) => {
     event.preventDefault();
-    if (option.trim()) {
+    if (option.trim() && !state.isLimitReached) {
       dispatch({ type: "addOption", payload: { id: uuidv4(), text: option } });
       setOption("");
       return;
@@ -32,15 +46,30 @@ export const OptionHolder: React.FC = () => {
   };
 
   return (
-    <form action="" onSubmit={handleOnSubmit}>
+    <Form action="" onSubmit={handleOnSubmit}>
       <StyledOptionInput
+        id="new option"
         autoFocus={true}
-        placeholder="an option..."
+        placeholder={
+          state.isLimitReached
+            ? `You have reached the limit.`
+            : `Add an option...`
+        }
         name="newOption"
         onChange={handleOnOptionChange}
+        disabled={state.isLimitReached}
         value={option}
       />
-      <PlusIcon onClick={handleOnSubmit} />
-    </form>
+      {!state.isLimitReached ? (
+        <>
+          <StyledLabel htmlFor="new option">
+            {`You can add ${
+              OPTIONS_LIMIT - state.pollOptions.length
+            } more options`}
+          </StyledLabel>
+          <PlusIcon onClick={handleOnSubmit} />
+        </>
+      ) : null}
+    </Form>
   );
 };
