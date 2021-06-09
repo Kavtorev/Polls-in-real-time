@@ -6,7 +6,9 @@ import ShuffleRoundedIcon from "@material-ui/icons/ShuffleRounded";
 import LinkRoundedIcon from "@material-ui/icons/LinkRounded";
 import DeleteOutlineRoundedIcon from "@material-ui/icons/DeleteOutlineRounded";
 import Tooltip, { TooltipProps } from "@material-ui/core/Tooltip";
+import { toast } from "react-toastify";
 import { shuffle } from "../lib/utils";
+import { UndoButton } from "./UndoButton";
 
 const StyledToolbar = styled.div`
   display: flex;
@@ -26,8 +28,7 @@ export const Toolbar: React.FC = () => {
 
   let handleClicks = (event: React.MouseEvent) => {
     const id = event.currentTarget.id;
-
-    switch (event.currentTarget.id) {
+    switch (id) {
       case ButtonIds.shuffle:
         dispatch({
           type: "shuffleOptions",
@@ -35,6 +36,13 @@ export const Toolbar: React.FC = () => {
         });
         break;
       case ButtonIds.delete:
+        toast(<UndoButton />, {
+          autoClose: 4000,
+          onClick: () => {
+            dispatch({ type: "setPollOptions", payload: state.pollOptions });
+          },
+          position: "top-center",
+        });
         dispatch({
           type: "removeAllOptions",
         });
