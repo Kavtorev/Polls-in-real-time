@@ -24,7 +24,6 @@ type ActionsTypes =
   | { type: "addOption"; payload: ChoiceType }
   | { type: "removeOption"; payload: string }
   | { type: "setPollName"; payload: string }
-  | { type: "setPollQuestion"; payload: string }
   | { type: "shuffleOptions"; payload: Array<ChoiceType> }
   | { type: "removeAllOptions" }
   | { type: "setPollOptions"; payload: Array<ChoiceType> }
@@ -37,7 +36,6 @@ export type InitialStateType = {
   anonymousVoting: boolean;
   invitationalLink: string;
   username: string;
-  pollQuestion: string;
   pollOptions: Array<ChoiceType>;
 };
 
@@ -49,7 +47,6 @@ let initialState = {
   multipleAnswers: false,
   anonymousVoting: false,
   username: "",
-  pollQuestion: "",
   pollOptions: [],
 };
 
@@ -57,8 +54,6 @@ export const OPTIONS_LIMIT = 5;
 
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
-    case "setPollQuestion":
-      return { ...state, pollquestion: action.payload };
     case "setUsername":
       return { ...state, username: action.payload };
     case "setPollName":
@@ -72,7 +67,11 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
         isLimitReached: state.pollOptions.length + 2 > OPTIONS_LIMIT,
       };
     case "setPollOptions":
-      return { ...state, pollOptions: action.payload };
+      return {
+        ...state,
+        pollOptions: action.payload,
+        isLimitReached: action.payload.length === OPTIONS_LIMIT,
+      };
     case "shuffleOptions":
       return {
         ...state,
@@ -89,7 +88,7 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
         isLimitReached: false,
       };
     case "removeAllOptions":
-      return { ...state, pollOptions: [] };
+      return { ...state, pollOptions: [], isLimitReached: false };
 
     default:
       throw new Error("Invalid action type");
@@ -111,7 +110,6 @@ const getStoredState = (): InitialStateType | null => {
   if (localStorageState) {
     return JSON.parse(localStorageState);
   }
-
   return null;
 };
 

@@ -58,7 +58,7 @@ export const OptionHolder: React.FC = () => {
         name="newOption"
         onChange={handleOnOptionChange}
         disabled={state.isLimitReached}
-        value={option}
+        value={state.isLimitReached ? "" : option}
       />
       {!state.isLimitReached ? (
         <>
