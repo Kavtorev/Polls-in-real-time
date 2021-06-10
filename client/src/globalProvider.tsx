@@ -18,13 +18,17 @@ type ActionsTypes =
   | { type: "setPollName"; payload: string }
   | { type: "setPollQuestion"; payload: string }
   | { type: "shuffleOptions"; payload: Array<ChoiceType> }
-  | { type: "removeAllOptions" };
+  | { type: "removeAllOptions" }
+  | { type: "setPollOptions"; payload: Array<ChoiceType> }
+  | { type: "setInvitationalLink"; payload: string }
+  | { type: "restoreState"; payload: InitialStateType };
 
 export type InitialStateType = {
   pollName: string;
   multipleAnswers: boolean;
   isLimitReached: boolean;
   anonymousVoting: boolean;
+  invitationalLink: string;
   username: string;
   pollQuestion: string;
   pollOptions: Array<ChoiceType>;
@@ -33,6 +37,7 @@ export type InitialStateType = {
 let initialState = {
   isLimitReached: false,
   isPageTransitionHappening: false,
+  invitationalLink: "http://localhost:3000/2@^#2g3qc2@^#2g3qc2@^#2g3qc",
   pollName: "",
   multipleAnswers: false,
   anonymousVoting: false,
@@ -45,18 +50,24 @@ export const OPTIONS_LIMIT = 5;
 
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
+    case "restoreState":
+      return { ...state, ...action.payload };
     case "setPollQuestion":
       return { ...state, pollquestion: action.payload };
     case "setUsername":
       return { ...state, username: action.payload };
     case "setPollName":
       return { ...state, pollName: action.payload };
+    case "setInvitationalLink":
+      return { ...state, invitationalLink: action.payload };
     case "addOption":
       return {
         ...state,
         pollOptions: state.pollOptions.concat(action.payload),
         isLimitReached: state.pollOptions.length + 2 > OPTIONS_LIMIT,
       };
+    case "setPollOptions":
+      return { ...state, pollOptions: action.payload };
     case "shuffleOptions":
       return {
         ...state,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import "./App.css";
 import GlobalStyle from "./globalStyles";
 import { Container } from "./containers/Container";
@@ -6,10 +6,11 @@ import { Switch, Route, Redirect, useLocation } from "react-router-dom";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { InitPage } from "./pages/InitPage";
 import { ConfigPage as ProtectedConfigPage } from "./pages/ConfigPage";
-import { GlobalProvider } from "./globalProvider";
+import { usePollContext, InitialStateType } from "./globalProvider";
 import { ToastContainer, Slide } from "react-toastify";
 import styled from "styled-components";
 import "react-toastify/dist/ReactToastify.css";
+import _ from "lodash";
 
 const StyledToastContainer = styled(ToastContainer)`
   .Toastify__toast {
@@ -33,11 +34,39 @@ const InnerContainer = styled.div`
   }
 `;
 
+enum LocalStorage {
+  applicationState = "state",
+}
+
 const App: React.FC = () => {
   let location = useLocation();
+  let { state, dispatch } = usePollContext();
+
+  let throttledState = useRef(
+    _.throttle(() => {
+      localStorage.setItem(
+        LocalStorage.applicationState,
+        JSON.stringify(state)
+      );
+    }, 1000)
+  );
+
+  useEffect(() => {
+    let localStorageState = localStorage.getItem(LocalStorage.applicationState);
+    if (localStorageState) {
+      dispatch({
+        type: "restoreState",
+        payload: JSON.parse(localStorageState),
+      });
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    throttledState.current();
+  }, [state]);
 
   return (
-    <GlobalProvider>
+    <>
       <GlobalStyle />
       <StyledToastContainer
         position="bottom-center"
@@ -63,7 +92,7 @@ const App: React.FC = () => {
           </TransitionGroup>
         </InnerContainer>
       </Container>
-    </GlobalProvider>
+    </>
   );
 };
 
