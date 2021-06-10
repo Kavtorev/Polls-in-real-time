@@ -6,7 +6,7 @@ import { Switch, Route, Redirect, useLocation } from "react-router-dom";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { InitPage } from "./pages/InitPage";
 import { ConfigPage as ProtectedConfigPage } from "./pages/ConfigPage";
-import { usePollContext, InitialStateType } from "./globalProvider";
+import { usePollContext } from "./globalProvider";
 import { ToastContainer, Slide } from "react-toastify";
 import styled from "styled-components";
 import "react-toastify/dist/ReactToastify.css";
@@ -43,7 +43,7 @@ const App: React.FC = () => {
   let { state, dispatch } = usePollContext();
 
   let throttledState = useRef(
-    _.throttle(() => {
+    _.throttle((state) => {
       localStorage.setItem(
         LocalStorage.applicationState,
         JSON.stringify(state)
@@ -51,6 +51,7 @@ const App: React.FC = () => {
     }, 1000)
   );
 
+  // on mount only....
   useEffect(() => {
     let localStorageState = localStorage.getItem(LocalStorage.applicationState);
     if (localStorageState) {
@@ -62,7 +63,7 @@ const App: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    throttledState.current();
+    throttledState.current(state);
   }, [state]);
 
   return (
