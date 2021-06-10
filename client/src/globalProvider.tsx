@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useReducer } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useRef,
+  useEffect,
+} from "react";
+import _ from "lodash";
+
 type ChoiceType = {
   id: string;
   text: string;
@@ -20,8 +28,7 @@ type ActionsTypes =
   | { type: "shuffleOptions"; payload: Array<ChoiceType> }
   | { type: "removeAllOptions" }
   | { type: "setPollOptions"; payload: Array<ChoiceType> }
-  | { type: "setInvitationalLink"; payload: string }
-  | { type: "restoreState"; payload: InitialStateType };
+  | { type: "setInvitationalLink"; payload: string };
 
 export type InitialStateType = {
   pollName: string;
@@ -50,8 +57,6 @@ export const OPTIONS_LIMIT = 5;
 
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
-    case "restoreState":
-      return { ...state, ...action.payload };
     case "setPollQuestion":
       return { ...state, pollquestion: action.payload };
     case "setUsername":
@@ -96,8 +101,39 @@ const globalContext = createContext<{
   dispatch: React.Dispatch<ActionsTypes>;
 }>({ state: initialState, dispatch: () => null });
 
+enum LocalStorage {
+  applicationState = "state",
+}
+
+const getStoredState = (): InitialStateType | null => {
+  let localStorageState = localStorage.getItem(LocalStorage.applicationState);
+
+  if (localStorageState) {
+    return JSON.parse(localStorageState);
+  }
+
+  return null;
+};
+
 export const GlobalProvider: React.FC = ({ children }) => {
-  const [state, dispatch] = useReducer(PollReducer, initialState);
+  const [state, dispatch] = useReducer(
+    PollReducer,
+    getStoredState() || initialState
+  );
+
+  let throttledState = useRef(
+    _.throttle((state) => {
+      localStorage.setItem(
+        LocalStorage.applicationState,
+        JSON.stringify(state)
+      );
+    }, 1000)
+  );
+
+  useEffect(() => {
+    throttledState.current(state);
+  }, [state]);
+
   return (
     <globalContext.Provider value={{ state, dispatch }}>
       {children}
