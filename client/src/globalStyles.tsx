@@ -13,6 +13,7 @@ const GlobalStyle = createGlobalStyle`
         --active-checkbox-color: rgb(39, 33, 35);
         --primary-button-backgroundColor: rgb(242, 173, 167);
         --primary-button-color: rgb(119, 26, 17);
+        --gray-backgroundColor: #F6F6F6;
         --top-bottom-margin: 0.8em;
         --top-bottom-padding: 0.2em;
         --right-left-margin: 1.5em;

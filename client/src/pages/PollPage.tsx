@@ -4,6 +4,8 @@ import { UsersSlider, settings } from "../components/UsersSlider";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Avatar } from "../components/Avatar";
+import { OptionsList } from "../components/OptionsList";
+import { Checkbox } from "../components/Checkbox";
 
 const SERVER_URL = "http://localhost:5000";
 
@@ -31,13 +33,16 @@ export const PollPage: React.FC = () => {
   }, []);
 
   return (
-    <UsersSlider {...settings}>
-      <Avatar initials="DK" />
-      <Avatar initials="DK" />
-      <Avatar initials="DK" />
-      <Avatar initials="DK" />
-      <Avatar initials="DK" />
-      <Avatar initials="DK" />
-    </UsersSlider>
+    <>
+      <UsersSlider {...settings}>
+        <Avatar initials="DK" />
+        <Avatar initials="DK" />
+        <Avatar initials="DK" />
+        <Avatar initials="DK" />
+        <Avatar initials="DK" />
+        <Avatar initials="DK" />
+      </UsersSlider>
+      <OptionsList render={(id) => <Checkbox />} />
+    </>
   );
 };

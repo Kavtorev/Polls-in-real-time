@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import _ from "lodash";
 
-type ChoiceType = {
+export type ChoiceType = {
   id: string;
   text: string;
 };
@@ -51,7 +51,7 @@ let initialState = {
 };
 
 export const OPTIONS_LIMIT = 5;
-
+// TODO move 'isLimitReached' to a 'single source of truth'
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
     case "setUsername":

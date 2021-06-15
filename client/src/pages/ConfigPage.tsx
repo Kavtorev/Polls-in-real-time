@@ -12,6 +12,7 @@ import { StyledButton } from "../components/StyledButton";
 import { toast } from "react-toastify";
 import Tooltip from "@material-ui/core/Tooltip";
 import ShareIcon from "@material-ui/icons/Share";
+import { CrossIcon } from "../icons/CrossIcon";
 
 const StyledHeader = styled.h1`
   font-size: 1.6rem;
@@ -94,7 +95,7 @@ export const ConfigPage: React.FC = ({ children }) => {
           <Toolbar />
           <StyledHeader>{state.pollName}</StyledHeader>
           <div className="">
-            <OptionsList />
+            <OptionsList render={(id) => <CrossIcon id={id} />} />
             <OptionHolder />
             <StyledConfigFooter>
               <StyledLinkHolder

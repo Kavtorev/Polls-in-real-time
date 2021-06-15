@@ -1,5 +1,5 @@
 import React from "react";
-import { usePollContext } from "../globalProvider";
+import { usePollContext, ChoiceType } from "../globalProvider";
 import { CrossIcon } from "../icons/CrossIcon";
 import { OptionItem } from "./OptionItem";
 import styled from "styled-components";
@@ -13,7 +13,9 @@ const StyledOptionsList = styled.div`
   /* for Chrome, Safari, and Opera */
 `;
 
-export const OptionsList: React.FC = () => {
+export const OptionsList: React.FC<{
+  render: (id: ChoiceType["id"]) => React.ReactElement;
+}> = ({ render }) => {
   const { state } = usePollContext();
   return (
     <StyledOptionsList>
@@ -21,7 +23,7 @@ export const OptionsList: React.FC = () => {
         state.pollOptions.map(({ id, text }) => {
           return (
             <OptionItem key={id} text={text}>
-              <CrossIcon id={id} />
+              {render(id)}
             </OptionItem>
           );
         })}
