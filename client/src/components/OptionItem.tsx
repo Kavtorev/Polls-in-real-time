@@ -9,7 +9,7 @@ const StyledOption = styled.div`
   align-items: center;
   font-size: 1.3rem;
   border-bottom: 1px solid var(--inactive-dark-color);
-  padding: var(--top-bottom-padding) 0;
+  padding: calc(var(--top-bottom-padding) * 1.5) 0;
   ${Truncate}
 `;
 
@@ -22,7 +22,6 @@ export const OptionItem: React.FC<{
   text: string;
   children: React.ReactElement;
 }> = ({ text, children }) => {
-  console.log(Truncate);
   return (
     <StyledOption>
       <Tooltip title={text} placement="right-start" arrow>
