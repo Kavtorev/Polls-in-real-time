@@ -1,21 +1,25 @@
-import styled from "styled-components";
+import Button from "@material-ui/core/Button";
+import { withStyles } from "@material-ui/core/styles";
 
-export const Button = styled.button`
-  display: block;
-  width: 147px;
-  height: 35px;
-  border-radius: 2px;
-  outline: none;
-  border: 0;
-  cursor: pointer;
-  font-weight: 600;
+export const StyledButton = withStyles({
+  root: {
+    display: "flex",
+    marginLeft: "auto",
+    width: "147px",
+    height: "35px",
+    borderRadius: "2px",
+    marginTop: "var(--top-bottom-margin)",
+    fontWeight: 600,
+    backgroundColor: "var(--primary-button-backgroundColor)",
+    color: "var(--primary-button-color)",
+    textTransform: "none",
+    "&:hover": {
+      boxShadow: "0 0 35px -2px rgba(0, 0, 0, 0.2)",
+      backgroundColor: "var(--primary-button-backgroundColor)",
+    },
 
-  :hover {
-    box-shadow: 0 0 35px -2px rgba(0, 0, 0, 0.2);
-  }
-
-  :not(:hover),
-  :hover {
-    transition: ease-in-out all 0.4s;
-  }
-`;
+    "&:not(:hover), :hover": {
+      transition: "ease-in-out all 0.4s",
+    },
+  },
+})(Button);

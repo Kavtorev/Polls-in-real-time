@@ -1,6 +1,5 @@
 import React from "react";
 import { StyledTextInput as TextInput } from "../components/TextInput";
-import { ContinueButton } from "../components/ContinueButton";
 import { CheckboxLabel } from "../components/CheckboxLabel";
 import { Checkbox } from "../components/Checkbox";
 import styled from "styled-components";
@@ -8,6 +7,7 @@ import { useHistory } from "react-router-dom";
 import { usePollContext } from "../globalProvider";
 import { toast } from "react-toastify";
 import { InitialStateType } from "../globalProvider";
+import { ContinueButton } from "../components/ContinueButton";
 
 const CheckBoxGroup = styled.div`
   display: flex;
