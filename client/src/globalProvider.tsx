@@ -4,12 +4,15 @@ import React, {
   useReducer,
   useRef,
   useEffect,
+  useState,
 } from "react";
 import _ from "lodash";
+import { auth } from "./firebase";
 
-export type ChoiceType = {
+export type OptionType = {
   id: string;
   text: string;
+  votes: number;
 };
 
 type ActionsTypes =
@@ -21,36 +24,44 @@ type ActionsTypes =
       type: "setConfigurationOption";
       payload: "multipleAnswers" | "anonymousVoting";
     }
-  | { type: "addOption"; payload: ChoiceType }
+  | { type: "addOption"; payload: OptionType }
   | { type: "removeOption"; payload: string }
   | { type: "setPollName"; payload: string }
-  | { type: "shuffleOptions"; payload: Array<ChoiceType> }
+  | { type: "shuffleOptions"; payload: Array<OptionType> }
   | { type: "removeAllOptions" }
-  | { type: "setPollOptions"; payload: Array<ChoiceType> }
-  | { type: "setInvitationalLink"; payload: string };
+  | { type: "setPollOptions"; payload: Array<OptionType> }
+  | { type: "setInvitationalLink"; payload: string }
+  | {
+      type: "signIn";
+      payload: { userID: InitialStateType["userID"]; username: string };
+    }
+  | { type: "signOut" };
 
 export type InitialStateType = {
+  isLimitReached: boolean;
   pollName: string;
   multipleAnswers: boolean;
-  isLimitReached: boolean;
   anonymousVoting: boolean;
   invitationalLink: string;
   username: string;
-  pollOptions: Array<ChoiceType>;
+  pollOptions: Array<OptionType>;
+  isSignedIn: boolean;
+  userID: string;
 };
 
 let initialState = {
   isLimitReached: false,
-  isPageTransitionHappening: false,
-  invitationalLink: "http://localhost:3000/2@^#2g3qc2@^#2g3qc2@^#2g3qc",
+  invitationalLink: "",
   pollName: "",
   multipleAnswers: false,
   anonymousVoting: false,
-  username: "",
   pollOptions: [],
+  isSignedIn: false,
+  username: "",
+  userID: "",
 };
 
-export const OPTIONS_LIMIT = 5;
+export const OPTIONS_LIMIT = 10;
 // TODO move 'isLimitReached' to a 'single source of truth'
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
@@ -60,6 +71,16 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
       return { ...state, pollName: action.payload };
     case "setInvitationalLink":
       return { ...state, invitationalLink: action.payload };
+    case "signIn":
+      let { username, userID } = action.payload;
+      return {
+        ...state,
+        isSignedIn: true,
+        username,
+        userID,
+      };
+    case "signOut":
+      return { ...state, isSignedIn: false, userID: "" };
     case "addOption":
       return {
         ...state,
@@ -118,6 +139,7 @@ export const GlobalProvider: React.FC = ({ children }) => {
     PollReducer,
     getStoredState() || initialState
   );
+  const [isInitializing, setIsInitializing] = useState(true);
 
   let throttledState = useRef(
     _.throttle((state) => {
@@ -129,8 +151,36 @@ export const GlobalProvider: React.FC = ({ children }) => {
   );
 
   useEffect(() => {
+    const unsubscribe = auth().onAuthStateChanged(function (user) {
+      if (user) {
+        // User is signed in.
+        let { uid, displayName } = user;
+        if (!displayName) displayName = "";
+
+        dispatch({
+          type: "signIn",
+          payload: {
+            userID: uid,
+            username:
+              state.username && uid === state.userID
+                ? state.username
+                : displayName,
+          },
+        });
+      }
+      setIsInitializing(false);
+    });
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     throttledState.current(state);
   }, [state]);
+
+  if (isInitializing) {
+    return null;
+  }
 
   return (
     <globalContext.Provider value={{ state, dispatch }}>

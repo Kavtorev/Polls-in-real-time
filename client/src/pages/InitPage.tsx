@@ -8,6 +8,7 @@ import { usePollContext } from "../globalProvider";
 import { toast } from "react-toastify";
 import { InitialStateType } from "../globalProvider";
 import { ContinueButton } from "../components/ContinueButton";
+import { GoogleSignIn } from "../components/GoogleSignIn";
 
 const CheckBoxGroup = styled.div`
   display: flex;
@@ -21,7 +22,9 @@ const CheckBoxGroup = styled.div`
 
 export const validateInitPage = (state: InitialStateType) => {
   return (
-    state.pollName.trim() && (state.username.trim() || state.anonymousVoting)
+    state.pollName.trim() &&
+    state.isSignedIn &&
+    (state.username.trim() || state.anonymousVoting)
   );
 };
 
@@ -88,7 +91,12 @@ export const InitPage: React.FC = () => {
           value={state.username}
         />
       )}
-      <ContinueButton />
+
+      {state.isSignedIn ? (
+        <ContinueButton disabled={!validateInitPage(state)} />
+      ) : (
+        <GoogleSignIn />
+      )}
     </form>
   );
 };
