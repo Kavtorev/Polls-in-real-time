@@ -38,7 +38,10 @@ export const OptionHolder: React.FC = () => {
   ) => {
     event.preventDefault();
     if (option.trim() && !state.isLimitReached) {
-      dispatch({ type: "addOption", payload: { id: uuidv4(), text: option } });
+      dispatch({
+        type: "addOption",
+        payload: { id: uuidv4(), text: option, votes: [], selected: false },
+      });
       setOption("");
       return;
     }
@@ -64,7 +67,7 @@ export const OptionHolder: React.FC = () => {
         <>
           <StyledLabel htmlFor="new option">
             {`You can add ${
-              OPTIONS_LIMIT - state.pollOptions.length
+              OPTIONS_LIMIT - Object.keys(state.pollOptions).length
             } more options`}
           </StyledLabel>
           <PlusIcon onClick={handleOnSubmit} />

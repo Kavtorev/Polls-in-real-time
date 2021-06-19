@@ -12,7 +12,8 @@ import { auth } from "./firebase";
 export type OptionType = {
   id: string;
   text: string;
-  votes: number;
+  selected: boolean;
+  votes: Array<InitialStateType["userID"]>;
 };
 
 type ActionsTypes =
@@ -27,9 +28,9 @@ type ActionsTypes =
   | { type: "addOption"; payload: OptionType }
   | { type: "removeOption"; payload: string }
   | { type: "setPollName"; payload: string }
-  | { type: "shuffleOptions"; payload: Array<OptionType> }
+  | { type: "shuffleOptions"; payload: InitialStateType["pollOptions"] }
   | { type: "removeAllOptions" }
-  | { type: "setPollOptions"; payload: Array<OptionType> }
+  | { type: "setPollOptions"; payload: InitialStateType["pollOptions"] }
   | { type: "setInvitationalLink"; payload: string }
   | {
       type: "signIn";
@@ -44,7 +45,13 @@ export type InitialStateType = {
   anonymousVoting: boolean;
   invitationalLink: string;
   username: string;
-  pollOptions: Array<OptionType>;
+  pollOptions: {
+    [id: string]: {
+      text: OptionType["text"];
+      selected: OptionType["selected"];
+      votes: OptionType["votes"];
+    };
+  };
   isSignedIn: boolean;
   userID: string;
 };
@@ -55,13 +62,15 @@ let initialState = {
   pollName: "",
   multipleAnswers: false,
   anonymousVoting: false,
-  pollOptions: [],
+  pollOptions: {},
   isSignedIn: false,
   username: "",
   userID: "",
 };
 
 export const OPTIONS_LIMIT = 10;
+
+export const getDeepCopy = (obj: Object) => JSON.parse(JSON.stringify(obj));
 // TODO move 'isLimitReached' to a 'single source of truth'
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
@@ -82,16 +91,20 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
     case "signOut":
       return { ...state, isSignedIn: false, userID: "" };
     case "addOption":
+      let { id, text, votes, selected } = action.payload;
+      let extendedOptions = getDeepCopy(state.pollOptions);
+      extendedOptions[id] = { text, votes, selected };
       return {
         ...state,
-        pollOptions: state.pollOptions.concat(action.payload),
-        isLimitReached: state.pollOptions.length + 2 > OPTIONS_LIMIT,
+        pollOptions: extendedOptions,
+        isLimitReached:
+          Object.keys(state.pollOptions).length + 2 > OPTIONS_LIMIT,
       };
     case "setPollOptions":
       return {
         ...state,
         pollOptions: action.payload,
-        isLimitReached: action.payload.length === OPTIONS_LIMIT,
+        isLimitReached: Object.keys(action.payload).length === OPTIONS_LIMIT,
       };
     case "shuffleOptions":
       return {
@@ -103,13 +116,15 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
       newState[action.payload] = !newState[action.payload];
       return newState;
     case "removeOption":
+      let optionsToFilter = getDeepCopy(state.pollOptions);
+      delete optionsToFilter[action.payload];
       return {
         ...state,
-        pollOptions: state.pollOptions.filter((e) => e.id !== action.payload),
+        pollOptions: optionsToFilter,
         isLimitReached: false,
       };
     case "removeAllOptions":
-      return { ...state, pollOptions: [], isLimitReached: false };
+      return { ...state, pollOptions: {}, isLimitReached: false };
 
     default:
       throw new Error("Invalid action type");

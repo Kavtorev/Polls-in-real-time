@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { usePollContext } from "../globalProvider";
+import { getDeepCopy, usePollContext } from "../globalProvider";
 import IconButton from "@material-ui/core/IconButton";
 import ShuffleRoundedIcon from "@material-ui/icons/ShuffleRounded";
-import LinkRoundedIcon from "@material-ui/icons/LinkRounded";
 import DeleteOutlineRoundedIcon from "@material-ui/icons/DeleteOutlineRounded";
 import Tooltip, { TooltipProps } from "@material-ui/core/Tooltip";
 import { toast } from "react-toastify";
@@ -20,7 +19,6 @@ const StyledToolbar = styled.div`
 enum ButtonIds {
   shuffle = "SHUFFLE",
   delete = "DELETE",
-  invite = "INVITE",
 }
 
 export const Toolbar: React.FC = () => {
@@ -32,7 +30,9 @@ export const Toolbar: React.FC = () => {
       case ButtonIds.shuffle:
         dispatch({
           type: "shuffleOptions",
-          payload: shuffle([...state.pollOptions]),
+          payload: Object.fromEntries(
+            shuffle(Object.entries(getDeepCopy(state.pollOptions)))
+          ),
         });
         break;
       case ButtonIds.delete:
@@ -47,8 +47,6 @@ export const Toolbar: React.FC = () => {
           type: "removeAllOptions",
         });
         break;
-      case ButtonIds.invite:
-        break;
       default:
         throw new Error("Invalid button id: " + id);
     }
@@ -60,19 +58,13 @@ export const Toolbar: React.FC = () => {
       title: "Shuffle options",
       id: ButtonIds.shuffle,
       icon: <ShuffleRoundedIcon />,
-      disabled: state.pollOptions.length < 2,
+      disabled: Object.keys(state.pollOptions).length < 2,
     },
     {
       title: "Delete all options",
       id: ButtonIds.delete,
       icon: <DeleteOutlineRoundedIcon />,
-      disabled: state.pollOptions.length < 1,
-    },
-    {
-      title: "Generate Invitational link",
-      id: ButtonIds.invite,
-      icon: <LinkRoundedIcon />,
-      disabled: state.pollOptions.length < 2,
+      disabled: Object.keys(state.pollOptions).length < 1,
     },
   ];
 
