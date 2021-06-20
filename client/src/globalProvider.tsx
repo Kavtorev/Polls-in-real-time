@@ -70,7 +70,6 @@ let initialState = {
 
 export const OPTIONS_LIMIT = 10;
 
-export const getDeepCopy = (obj: Object) => JSON.parse(JSON.stringify(obj));
 // TODO move 'isLimitReached' to a 'single source of truth'
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
@@ -92,7 +91,8 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
       return { ...state, isSignedIn: false, userID: "" };
     case "addOption":
       let { id, text, votes, selected } = action.payload;
-      let extendedOptions = getDeepCopy(state.pollOptions);
+      let extendedOptions = _.cloneDeep(state.pollOptions);
+
       extendedOptions[id] = { text, votes, selected };
       return {
         ...state,
@@ -116,7 +116,7 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
       newState[action.payload] = !newState[action.payload];
       return newState;
     case "removeOption":
-      let optionsToFilter = getDeepCopy(state.pollOptions);
+      let optionsToFilter = _.cloneDeep(state.pollOptions);
       delete optionsToFilter[action.payload];
       return {
         ...state,

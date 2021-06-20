@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { getDeepCopy, usePollContext } from "../globalProvider";
+import { usePollContext } from "../globalProvider";
 import IconButton from "@material-ui/core/IconButton";
 import ShuffleRoundedIcon from "@material-ui/icons/ShuffleRounded";
 import DeleteOutlineRoundedIcon from "@material-ui/icons/DeleteOutlineRounded";
@@ -8,6 +8,7 @@ import Tooltip, { TooltipProps } from "@material-ui/core/Tooltip";
 import { toast } from "react-toastify";
 import { shuffle } from "../lib/utils";
 import { UndoButton } from "./UndoButton";
+import _ from "lodash";
 
 const StyledToolbar = styled.div`
   display: flex;
@@ -31,7 +32,7 @@ export const Toolbar: React.FC = () => {
         dispatch({
           type: "shuffleOptions",
           payload: Object.fromEntries(
-            shuffle(Object.entries(getDeepCopy(state.pollOptions)))
+            shuffle(Object.entries(_.cloneDeep(state.pollOptions)))
           ),
         });
         break;
