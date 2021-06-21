@@ -10,12 +10,6 @@ const sessionStore = new SessionStore();
 
 const getUniqueId = () => nanoid();
 
-//options:
-// id: {
-//   votes: {
-//      userId: {username}
-//   }
-// }
 // don't forget to pass a deep copy...
 const getUserVotes = (options: any, userID: string) => {
   for (let key in options) {
@@ -30,14 +24,8 @@ const getUserVotes = (options: any, userID: string) => {
 app.use(express.json());
 app.post("/get_link", async (req, res) => {
   // get stuff from body
-  let {
-    username,
-    userID,
-    pollName,
-    pollOptions,
-    multipleAnswers,
-    anonymousVoting,
-  } = req.body;
+  let { userID, pollName, pollOptions, multipleAnswers, anonymousVoting } =
+    req.body;
 
   //TODO validate stuff from body
 
@@ -48,11 +36,14 @@ app.post("/get_link", async (req, res) => {
   // create a session
 
   sessionStore.createSession(sessionID, {
-    pollName,
-    multipleAnswers,
-    anonymousVoting,
     pollOptions,
-    pollCreator: userID,
+    meta: {
+      pollName,
+      multipleAnswers,
+      anonymousVoting,
+      pollCreator: userID,
+      alreadyVoted: {},
+    },
   });
 
   // response with a link
@@ -79,7 +70,7 @@ const io = new Server(server, {
 // }, 1000);
 
 io.use((socket: any, next) => {
-  let { sessionID, userID, username = "" } = socket.handshake.auth;
+  let { sessionID, userID, username, photoURL } = socket.handshake.auth;
 
   if (!sessionID || !userID) {
     return next(new Error("Invalid session indentifier."));
@@ -94,31 +85,64 @@ io.use((socket: any, next) => {
   socket.sessionID = sessionID;
   socket.userID = userID;
   socket.username = username;
+  socket.photoURL = photoURL;
   next();
 });
 
 io.on("connection", (socket: any) => {
   let sessionID = socket.sessionID;
   let session = sessionStore.getSessionById(sessionID);
-
   let users: any = {};
 
   for (let instance of io.of("/").sockets) {
     let socket = instance[1] as any;
-    users[socket.userID] = socket.username;
+    users[socket.userID] = {
+      username: socket.username,
+      photoURL: socket.photoURL,
+    };
   }
-
-  console.log("users:", users);
 
   // join session...
   socket.join(sessionID);
+  // to be in sync with multiple tabs
+  socket.join(socket.userID);
   // send sessions' data
-  socket.emit("session", { session, users });
+  socket.emit("session", {
+    pollOptions: session.pollOptions,
+    meta: session.meta,
+    users,
+  });
   // notify others about recent connection
-  socket.to(sessionID).emit("user_connected", "Hello there");
+  socket
+    .to(sessionID)
+    .emit("user_connected", {
+      id: socket.userID,
+      username: socket.username,
+      photoURL: socket.photoURL,
+    });
   //
-  socket.on("voted", (...args: any) => {
-    console.log("someone voted: ....", args);
+  socket.on("voted", (args: any) => {
+    if (args.votes) {
+      // update sessions' votes
+      for (let key of Object.keys(args.votes)) {
+        session.pollOptions[key].votes[socket.userID] = {
+          username: socket.username,
+          photoURL: socket.photoURL,
+        };
+      }
+
+      session.meta.alreadyVoted[socket.userID] = { username: socket.username };
+      io.to(sessionID).to(socket.userID).emit("voted", {
+        pollOptions: session.pollOptions,
+        meta: session.meta,
+      });
+    }
+    console.log("someone voted: ....", session);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("disconnected");
+    socket.to(sessionID).emit("user_disconnected", { id: socket.userID });
   });
 });
 
