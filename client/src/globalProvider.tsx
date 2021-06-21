@@ -13,7 +13,13 @@ export type OptionType = {
   id: string;
   text: string;
   selected: boolean;
-  votes: Array<InitialStateType["userID"]>;
+  votes: { [id: string]: { username: string; photoURL: string } };
+};
+
+export type OptionContentsType = {
+  text: OptionType["text"];
+  selected: OptionType["selected"];
+  votes: OptionType["votes"];
 };
 
 type ActionsTypes =
@@ -34,7 +40,11 @@ type ActionsTypes =
   | { type: "setInvitationalLink"; payload: string }
   | {
       type: "signIn";
-      payload: { userID: InitialStateType["userID"]; username: string };
+      payload: {
+        userID: InitialStateType["userID"];
+        username: string;
+        photoURL: InitialStateType["photoURL"];
+      };
     }
   | { type: "signOut" };
 
@@ -54,6 +64,7 @@ export type InitialStateType = {
   };
   isSignedIn: boolean;
   userID: string;
+  photoURL: string;
 };
 
 let initialState = {
@@ -66,6 +77,7 @@ let initialState = {
   isSignedIn: false,
   username: "",
   userID: "",
+  photoURL: "",
 };
 
 export const OPTIONS_LIMIT = 10;
@@ -80,15 +92,22 @@ const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
     case "setInvitationalLink":
       return { ...state, invitationalLink: action.payload };
     case "signIn":
-      let { username, userID } = action.payload;
+      let { username, userID, photoURL } = action.payload;
       return {
         ...state,
         isSignedIn: true,
         username,
         userID,
+        photoURL,
       };
     case "signOut":
-      return { ...state, isSignedIn: false, userID: "" };
+      return {
+        ...state,
+        isSignedIn: false,
+        userID: "",
+        photoURL: "",
+        username: "",
+      };
     case "addOption":
       let { id, text, votes, selected } = action.payload;
       let extendedOptions = _.cloneDeep(state.pollOptions);
@@ -169,13 +188,16 @@ export const GlobalProvider: React.FC = ({ children }) => {
     const unsubscribe = auth().onAuthStateChanged(function (user) {
       if (user) {
         // User is signed in.
-        let { uid, displayName } = user;
+        let { uid, displayName, photoURL } = user;
+
         if (!displayName) displayName = "";
+        if (!photoURL) photoURL = "";
 
         dispatch({
           type: "signIn",
           payload: {
             userID: uid,
+            photoURL,
             username:
               state.username && uid === state.userID
                 ? state.username
