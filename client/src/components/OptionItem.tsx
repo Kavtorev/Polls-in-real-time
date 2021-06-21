@@ -9,7 +9,7 @@ const StyledOption = styled.div`
   align-items: center;
   font-size: 1.3rem;
   border-bottom: 1px solid var(--inactive-dark-color);
-  padding: calc(var(--top-bottom-padding) * 1.5) 0;
+  padding: calc(var(--top-bottom-padding) * 2.2) 0;
   ${Truncate}
 `;
 

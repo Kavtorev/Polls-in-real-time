@@ -18,10 +18,7 @@ const StyledOptionsList = styled.div`
 `;
 
 export const OptionsList: React.FC<{
-  render: (
-    id: OptionType["id"],
-    selected: OptionType["selected"]
-  ) => React.ReactElement;
+  render: (id: OptionType["id"]) => React.ReactElement;
   options: InitialStateType["pollOptions"] | undefined;
 }> = ({ render, options = [] }) => {
   return (
@@ -30,7 +27,7 @@ export const OptionsList: React.FC<{
         Object.entries(options).map(([id, { text, selected }]) => {
           return (
             <OptionItem key={id} text={text}>
-              {render(id, selected)}
+              {render(id)}
             </OptionItem>
           );
         })}
