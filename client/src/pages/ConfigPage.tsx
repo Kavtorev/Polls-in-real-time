@@ -1,123 +1,84 @@
-import React, { useRef } from "react";
-import { usePollContext } from "../globalProvider";
+import React from "react";
+import {
+  usePollContext,
+  InitialStateType,
+  OptionType,
+} from "../globalProvider";
 import { OptionHolder } from "../components/OptionHolder";
 import { OptionsList } from "../components/OptionsList";
-import { Redirect, Route } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import styled from "styled-components";
 import { validateInitPage } from "./InitPage";
 import { ContinueButton } from "../components/ContinueButton";
 import { Truncate } from "../components/Truncate";
 import { Toolbar } from "../components/Toolbar";
-import { StyledButton } from "../components/StyledButton";
 import { toast } from "react-toastify";
-import Tooltip from "@material-ui/core/Tooltip";
-import ShareIcon from "@material-ui/icons/Share";
 import { CrossIcon } from "../icons/CrossIcon";
+import { useHistory } from "react-router-dom";
+import axios from "axios";
 
 const StyledHeader = styled.h1`
   font-size: 1.6rem;
   margin-left: auto;
   border-top: 2px solid var(--primary-button-backgroundColor);
   border-radius: 4px;
-  margin-bottom: var(--top-bottom-margin);
   ${Truncate}
 `;
 
-const StyledConfigFooter = styled.div`
-  margin-top: calc(var(--top-bottom-margin) * 2);
-`;
+export const validateConfigPage = (state: InitialStateType) =>
+  Object.keys(state.pollOptions).length > 1;
 
-interface StyledCopyButtonProps {
-  active: boolean;
-}
+export const ConfigPage: React.FC = () => {
+  let { state, dispatch } = usePollContext();
+  let history = useHistory();
 
-const StyledLinkHolder = styled.div<StyledCopyButtonProps>`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  height: 35px;
-  border: 2px solid var(--primary-button-backgroundColor);
-  margin-bottom: var(--top-bottom-margin);
-  margin-right: 0.3em;
-  cursor: pointer;
-  ${(props) =>
-    props.active
-      ? "color: var(--primary-button-backgroundColor); border: 2px solid var(--primary-button-backgroundColor);"
-      : "color: var(--inactive-dark-color); border: 2px solid var(--inactive-dark-color);"};
-  border-radius: 2px;
-  transition: all 1s;
+  //TODO send a request to generate a unique hash...
+  const handleClick = () => {
+    if (validateConfigPage(state)) {
+      let { userID, pollName, multipleAnswers, anonymousVoting, pollOptions } =
+        state;
 
-  :hover {
-    box-shadow: inset 0 0 5px -2px rgba(0, 0, 0, 0.2);
-  }
-`;
-
-const StyledLinkText = styled.div`
-  width: 99%;
-  padding-left: 0.5em;
-  font-size: 0.95rem;
-  align-self: center;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  overflow-x: scroll;
-  white-space: nowrap;
-`;
-
-const StyledLinkButton = styled(StyledButton)`
-  background-color: transparent;
-  color: currentColor;
-  width: 40px;
-  height: inherit;
-  :hover {
-    box-shadow: none;
-  }
-`;
-
-const StyledShareButton = styled(StyledLinkButton)``;
-
-export const ConfigPage: React.FC = ({ children }) => {
-  let { state } = usePollContext();
-  let linkHolderRef = useRef<HTMLDivElement>(null);
-
-  const handleLinkTextClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (state.invitationalLink) {
-      navigator.clipboard.writeText(state.invitationalLink).then(
-        () => toast("Successfully copied to the clipboard"),
-        () => toast("Please copy the link manually")
-      );
+      axios
+        .post("/get_link", {
+          userID,
+          pollName,
+          pollOptions,
+          multipleAnswers,
+          anonymousVoting,
+        })
+        .then(
+          ({ data: { sessionID } }) => {
+            dispatch({
+              type: "setInvitationalLink",
+              payload: `${window.location.host}/poll/${sessionID}`,
+            });
+            history.push(`/poll/${sessionID}`);
+          },
+          (err) => console.log(err)
+        );
+      // history.push("/poll");
+    } else {
+      toast("Please provide more than one option...");
     }
   };
 
+  if (!validateInitPage(state)) {
+    return <Redirect to="/" />;
+  }
+
   return (
     <>
-      {validateInitPage(state) ? (
-        <Route path="/config">
-          <Toolbar />
-          <StyledHeader>{state.pollName}</StyledHeader>
-          <div className="">
-            <OptionsList render={(id) => <CrossIcon id={id} />} />
-            <OptionHolder />
-            <StyledConfigFooter>
-              <StyledLinkHolder
-                active={!!state.invitationalLink}
-                ref={linkHolderRef}
-              >
-                <StyledLinkText onClick={handleLinkTextClick}>
-                  {state.invitationalLink}
-                </StyledLinkText>
-                <Tooltip title="Share the link">
-                  <StyledShareButton>
-                    <ShareIcon />
-                  </StyledShareButton>
-                </Tooltip>
-              </StyledLinkHolder>
-              <ContinueButton />
-            </StyledConfigFooter>
-          </div>
-        </Route>
-      ) : (
-        <Redirect to="/" />
-      )}
+      <Toolbar />
+      <StyledHeader>{state.pollName}</StyledHeader>
+      <OptionsList
+        render={(id) => <CrossIcon id={id} />}
+        options={state.pollOptions}
+      />
+      <OptionHolder />
+      <ContinueButton
+        onClick={handleClick}
+        disabled={!validateConfigPage(state)}
+      />
     </>
   );
 };
