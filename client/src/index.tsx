@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
-import { GlobalProvider, usePollContext } from "./globalProvider";
+import { GlobalProvider } from "./globalProvider";
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>

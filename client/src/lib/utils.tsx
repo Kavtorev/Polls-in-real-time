@@ -11,3 +11,21 @@ export function shuffle(a: Array<any>) {
   }
   return a;
 }
+
+/**
+ * Generates initials from a string.
+ * @param {string} name
+ */
+
+// copied from https://www.codegrepper.com/code-examples/javascript/get+initials+from+name+javascript
+export const getInitials = (name: string) => {
+  let initials: any = name.split(" ");
+
+  if (initials.length > 1) {
+    initials = initials.shift().charAt(0) + initials.pop().charAt(0);
+  } else {
+    initials = name.substring(0, 2);
+  }
+
+  return initials.toUpperCase();
+};

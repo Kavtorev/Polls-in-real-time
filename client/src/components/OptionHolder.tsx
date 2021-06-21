@@ -40,7 +40,7 @@ export const OptionHolder: React.FC = () => {
     if (option.trim() && !state.isLimitReached) {
       dispatch({
         type: "addOption",
-        payload: { id: uuidv4(), text: option, votes: [], selected: false },
+        payload: { id: uuidv4(), text: option, votes: {}, selected: false },
       });
       setOption("");
       return;

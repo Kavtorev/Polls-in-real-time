@@ -15,7 +15,10 @@ export const GoogleSignOut: React.FC = () => {
       });
   };
   return (
-    <StyledGoogleButton onClick={handleGoogleLogOut}>
+    <StyledGoogleButton
+      onClick={handleGoogleLogOut}
+      style={{ position: "absolute", right: 10 }}
+    >
       <img src={googleIcon} alt="google icon" width="16px" height="16px" />
       Sign out
     </StyledGoogleButton>

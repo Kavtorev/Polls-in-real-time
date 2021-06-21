@@ -10,7 +10,7 @@ const GlobalStyle = createGlobalStyle`
     :root{
         --inactive-dark-color: #C5C5C5;
         --active-dark-color: #525151;
-        --active-checkbox-color: rgb(39, 33, 35);
+        --checkbox-radio-color: rgb(255, 167, 196);
         --primary-button-backgroundColor: rgb(242, 173, 167);
         --primary-button-color: rgb(119, 26, 17);
         --gray-backgroundColor: #F6F6F6;
