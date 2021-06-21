@@ -1,10 +1,11 @@
 import Button from "@material-ui/core/Button";
-import { withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
+import React from "react";
 
-export const StyledButton = withStyles({
+const useStyles = makeStyles({
   root: {
     display: "flex",
-    marginLeft: "auto",
+    marginLeft: (alignRight) => (alignRight ? "auto" : "1em"),
     width: "147px",
     height: "35px",
     borderRadius: "2px",
@@ -22,4 +23,17 @@ export const StyledButton = withStyles({
       transition: "ease-in-out all 0.4s",
     },
   },
-})(Button);
+});
+
+export const StyledButton: React.FC<any> = ({
+  alignRight = false,
+  children,
+  ...rest
+}) => {
+  const styles = useStyles(alignRight);
+  return (
+    <Button className={styles.root} {...rest}>
+      {children}
+    </Button>
+  );
+};
