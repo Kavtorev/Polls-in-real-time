@@ -3,6 +3,7 @@ import { Server, Socket } from "socket.io";
 import { nanoid } from "nanoid";
 import { baseUrl } from "./config/app";
 import SessionStore from "./SessionStore";
+import { SESSION_EXPIRY_TIME_MS } from "./config/session";
 
 const app: Application = express();
 const PORT = 5000;
@@ -43,6 +44,8 @@ app.post("/get_link", async (req, res) => {
       anonymousVoting,
       pollCreator: userID,
       alreadyVoted: {},
+      hasEnded: false,
+      createdAt: Date.now(),
     },
   });
 
@@ -78,7 +81,7 @@ io.use((socket: any, next) => {
 
   let session = sessionStore.getSessionById(sessionID);
 
-  if (!session) {
+  if (!session || session.createdAt + SESSION_EXPIRY_TIME_MS < Date.now()) {
     return next(new Error("Poll has expired."));
   }
 
@@ -113,13 +116,11 @@ io.on("connection", (socket: any) => {
     users,
   });
   // notify others about recent connection
-  socket
-    .to(sessionID)
-    .emit("user_connected", {
-      id: socket.userID,
-      username: socket.username,
-      photoURL: socket.photoURL,
-    });
+  socket.to(sessionID).emit("user_connected", {
+    id: socket.userID,
+    username: socket.username,
+    photoURL: socket.photoURL,
+  });
   //
   socket.on("voted", (args: any) => {
     if (args.votes) {
@@ -130,8 +131,9 @@ io.on("connection", (socket: any) => {
           photoURL: socket.photoURL,
         };
       }
-
+      // unique votes
       session.meta.alreadyVoted[socket.userID] = { username: socket.username };
+
       io.to(sessionID).to(socket.userID).emit("voted", {
         pollOptions: session.pollOptions,
         meta: session.meta,
@@ -139,6 +141,8 @@ io.on("connection", (socket: any) => {
     }
     console.log("someone voted: ....", session);
   });
+
+  socket.on("verdict", () => {});
 
   socket.on("disconnect", () => {
     console.log("disconnected");

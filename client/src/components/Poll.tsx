@@ -37,9 +37,13 @@ export const Poll: React.FC = () => {
     { "": { text: "", selected: false, votes: {} } }
   );
 
-  let [users, setUsers] = useState<any>(null);
-  let [meta, setMeta] = useState<any>(null);
-  let [radioSelected, setRadioSelected] = useState<any>({ "": {} });
+  let [users, setUsers] = useState<any>();
+  let [meta, setMeta] = useState<any>({});
+  let [radioSelected, setRadioSelected] = useState<
+    InitialStateType["pollOptions"]
+  >({
+    "": { text: "", selected: false, votes: {} },
+  });
 
   const OnUserConnected = ({
     id,
@@ -92,11 +96,17 @@ export const Poll: React.FC = () => {
   };
 
   const OnVoted = ({ pollOptions, meta }: { pollOptions: any; meta: any }) => {
+    // receiving pollOption to track votes for each individual option and meta to get the overall list of voted users.
     setPollOptions(pollOptions);
     setMeta(meta);
   };
 
-  function setUpSocket() {
+  const OnVerdict = ({ meta }: { meta: any }) => {
+    // receiving meta to track the 'hasEnded flag'
+    setMeta(meta);
+  };
+
+  const setUpSocket = () => {
     socketRef.current = io(SERVER_URL, {
       autoConnect: false,
       auth: {
@@ -112,11 +122,12 @@ export const Poll: React.FC = () => {
     socketRef.current.on("user_disconnected", OnUserDisconnected);
     socketRef.current.on("connect_error", OnConnectError);
     socketRef.current.on("voted", OnVoted);
+    socketRef.current.on("verdict", OnVerdict);
     socketRef.current.connect();
     socketRef.current.onAny((event: any, ...args: any) => {
       console.log(event, args);
     });
-  }
+  };
 
   useEffect(() => {
     setUpSocket();
@@ -158,9 +169,23 @@ export const Poll: React.FC = () => {
     }
   };
 
+  const handleOnVerdictClick = () => {
+    socketRef.current?.emit("verdict");
+  };
+
+  const hasSelected = (options: InitialStateType["pollOptions"]) =>
+    Object.keys(options).some((key) => options[key].selected);
+
+  const areThereEnoughVotes = () => {
+    return Object.keys(meta.alreadyVoted).length > 0;
+  };
+
   if (!pollOptions || !users || !meta) {
     return <h1>Loading...</h1>;
   }
+
+  const isCreator = meta.pollCreator === state.userID;
+  const hasAlreadyVoted = Object.keys(meta.alreadyVoted).includes(state.userID);
 
   //TODO refactor to separate views => //TODO For a user who voted, for those who voted
   //TODO verdict button => //TODO verdict component
@@ -199,12 +224,26 @@ export const Poll: React.FC = () => {
       )}
 
       <StyledPollFooter>
-        {state.userID === meta.pollCreator && (
-          <StyledButton endIcon={<TimerRoundedIcon />}>Verdict</StyledButton>
+        {isCreator && hasAlreadyVoted && (
+          <StyledButton
+            endIcon={<TimerRoundedIcon />}
+            onClick={handleOnVerdictClick}
+            disabled={!areThereEnoughVotes}
+          >
+            Verdict
+          </StyledButton>
         )}
-        <StyledButton endIcon={<CheckRoundedIcon />} onClick={handleVoteClick}>
-          Vote
-        </StyledButton>
+        {!hasAlreadyVoted && (
+          <StyledButton
+            endIcon={<CheckRoundedIcon />}
+            onClick={handleVoteClick}
+            disabled={
+              !hasSelected(meta.multipleAnswers ? pollOptions : radioSelected)
+            }
+          >
+            Vote
+          </StyledButton>
+        )}
       </StyledPollFooter>
     </>
   );

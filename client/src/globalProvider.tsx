@@ -9,17 +9,17 @@ import React, {
 import _ from "lodash";
 import { auth } from "./firebase";
 
+export type OptionContentsType = {
+  text: OptionType["text"];
+  selected: OptionType["selected"];
+  votes: OptionType["votes"];
+};
+
 export type OptionType = {
   id: string;
   text: string;
   selected: boolean;
   votes: { [id: string]: { username: string; photoURL: string } };
-};
-
-export type OptionContentsType = {
-  text: OptionType["text"];
-  selected: OptionType["selected"];
-  votes: OptionType["votes"];
 };
 
 type ActionsTypes =
@@ -56,11 +56,7 @@ export type InitialStateType = {
   invitationalLink: string;
   username: string;
   pollOptions: {
-    [id: string]: {
-      text: OptionType["text"];
-      selected: OptionType["selected"];
-      votes: OptionType["votes"];
-    };
+    [id: string]: OptionContentsType;
   };
   isSignedIn: boolean;
   userID: string;
