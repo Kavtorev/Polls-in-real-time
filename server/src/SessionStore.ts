@@ -7,6 +7,14 @@ export default class SessionStore {
     this.sessions = new Map();
   }
 
+  summarizeSession(id: string) {
+    let session = this.sessions.get(id);
+    if (session) {
+      session.meta.isSummarized = true;
+      return this.sessions.set(id, session).get(id);
+    }
+  }
+
   getSessionById(id: string) {
     return this.sessions.get(id);
   }
