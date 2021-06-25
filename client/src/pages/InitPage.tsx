@@ -21,11 +21,7 @@ const CheckBoxGroup = styled.div`
 `;
 
 export const validateInitPage = (state: InitialStateType) => {
-  return (
-    state.pollName.trim() &&
-    state.isSignedIn &&
-    (state.username.trim() || state.anonymousVoting)
-  );
+  return state.pollName.trim() && state.isSignedIn;
 };
 
 export const InitPage: React.FC = () => {
@@ -45,8 +41,6 @@ export const InitPage: React.FC = () => {
 
   const handleOnPollNameChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: "setPollName", payload: event.target.value });
-  const handleOnUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-    dispatch({ type: "setUsername", payload: event.target.value });
 
   return (
     <form action="" onSubmit={handleSubmit}>
@@ -83,15 +77,6 @@ export const InitPage: React.FC = () => {
           />
         </CheckboxLabel>
       </CheckBoxGroup>
-      {!state.anonymousVoting && (
-        <TextInput
-          placeholder="Your username..."
-          name="username"
-          onChange={handleOnUsernameChange}
-          value={state.username}
-        />
-      )}
-
       {state.isSignedIn ? (
         <ContinueButton disabled={!validateInitPage(state)} />
       ) : (

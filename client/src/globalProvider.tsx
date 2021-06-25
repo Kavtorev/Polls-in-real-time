@@ -24,10 +24,6 @@ export type OptionType = {
 
 type ActionsTypes =
   | {
-      type: "setUsername";
-      payload: string;
-    }
-  | {
       type: "setConfigurationOption";
       payload: "multipleAnswers" | "anonymousVoting";
     }
@@ -37,7 +33,7 @@ type ActionsTypes =
   | { type: "shuffleOptions"; payload: InitialStateType["pollOptions"] }
   | { type: "removeAllOptions" }
   | { type: "setPollOptions"; payload: InitialStateType["pollOptions"] }
-  | { type: "setInvitationalLink"; payload: string }
+  | { type: "setSessionID"; payload: string }
   | {
       type: "signIn";
       payload: {
@@ -53,7 +49,7 @@ export type InitialStateType = {
   pollName: string;
   multipleAnswers: boolean;
   anonymousVoting: boolean;
-  invitationalLink: string;
+  sessionID: string;
   username: string;
   pollOptions: {
     [id: string]: OptionContentsType;
@@ -65,7 +61,7 @@ export type InitialStateType = {
 
 let initialState = {
   isLimitReached: false,
-  invitationalLink: "",
+  sessionID: "",
   pollName: "",
   multipleAnswers: false,
   anonymousVoting: false,
@@ -81,12 +77,10 @@ export const OPTIONS_LIMIT = 10;
 // TODO move 'isLimitReached' to a 'single source of truth'
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
-    case "setUsername":
-      return { ...state, username: action.payload };
     case "setPollName":
       return { ...state, pollName: action.payload };
-    case "setInvitationalLink":
-      return { ...state, invitationalLink: action.payload };
+    case "setSessionID":
+      return { ...state, sessionID: action.payload };
     case "signIn":
       let { username, userID, photoURL } = action.payload;
       return {
@@ -194,10 +188,7 @@ export const GlobalProvider: React.FC = ({ children }) => {
           payload: {
             userID: uid,
             photoURL,
-            username:
-              state.username && uid === state.userID
-                ? state.username
-                : displayName,
+            username: displayName,
           },
         });
       }

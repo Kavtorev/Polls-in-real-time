@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  usePollContext,
-  InitialStateType,
-  OptionType,
-} from "../globalProvider";
+import { usePollContext, InitialStateType } from "../globalProvider";
 import { OptionHolder } from "../components/OptionHolder";
 import { OptionsList } from "../components/OptionsList";
 import { Redirect } from "react-router-dom";
@@ -49,14 +45,13 @@ export const ConfigPage: React.FC = () => {
         .then(
           ({ data: { sessionID } }) => {
             dispatch({
-              type: "setInvitationalLink",
-              payload: `${window.location.host}/poll/${sessionID}`,
+              type: "setSessionID",
+              payload: sessionID,
             });
             history.push(`/poll/${sessionID}`);
           },
           (err) => console.log(err)
         );
-      // history.push("/poll");
     } else {
       toast("Please provide more than one option...");
     }

@@ -64,10 +64,11 @@ const StyledShareButtonStyles = makeStyles({
 
 export const LinkHolder: React.FC = () => {
   let { state } = usePollContext();
+  let voteURL = `${window.location.host}/poll/${state.sessionID}`;
 
   const handleLinkTextClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (state.invitationalLink) {
-      navigator.clipboard.writeText(state.invitationalLink).then(
+    if (state.sessionID) {
+      navigator.clipboard.writeText(voteURL).then(
         () => toast("Successfully copied to the clipboard"),
         () => toast("Please copy the link manually")
       );
@@ -75,10 +76,8 @@ export const LinkHolder: React.FC = () => {
   };
   return (
     <StyledLinkHolderContainer>
-      <StyledLinkHolder active={!!state.invitationalLink}>
-        <StyledLinkText onClick={handleLinkTextClick}>
-          {state.invitationalLink}
-        </StyledLinkText>
+      <StyledLinkHolder active={!!voteURL}>
+        <StyledLinkText onClick={handleLinkTextClick}>{voteURL}</StyledLinkText>
         <Tooltip title="Share the link">
           <StyledButton className={StyledShareButtonStyles().root}>
             <ShareRoundedIcon />
