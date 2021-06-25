@@ -14,12 +14,14 @@ import { useParams } from "react-router-dom";
 import { LinkHolder } from "../components/LinkHolder";
 import { getInitials } from "../lib/utils";
 import TimerRoundedIcon from "@material-ui/icons/TimerRounded";
-import Avatar from "@material-ui/core/Avatar";
+import { StyledAvatar } from "./Avatar";
 import ah from "../assets/anonymousHolder.png";
 import _ from "lodash";
 import { PollView } from "./PollView";
 import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
 import styled from "styled-components";
+import { PieChart } from "../components/PieChart";
+import getRandomColor from "randomcolor";
 
 const SERVER_URL = "http://localhost:5000";
 
@@ -101,7 +103,7 @@ export const Poll: React.FC = () => {
     setMeta(meta);
   };
 
-  const OnVerdict = ({ meta }: { meta: any }) => {
+  const OnSummarize = ({ meta }: { meta: any }) => {
     // receiving meta to track the 'hasEnded flag'
     setMeta(meta);
   };
@@ -122,7 +124,7 @@ export const Poll: React.FC = () => {
     socketRef.current.on("user_disconnected", OnUserDisconnected);
     socketRef.current.on("connect_error", OnConnectError);
     socketRef.current.on("voted", OnVoted);
-    socketRef.current.on("verdict", OnVerdict);
+    socketRef.current.on("summarize", OnSummarize);
     socketRef.current.connect();
     socketRef.current.onAny((event: any, ...args: any) => {
       console.log(event, args);
@@ -169,8 +171,8 @@ export const Poll: React.FC = () => {
     }
   };
 
-  const handleOnVerdictClick = () => {
-    socketRef.current?.emit("verdict");
+  const handleOnSummarizeClick = () => {
+    socketRef.current?.emit("summarize");
   };
 
   const hasSelected = (options: InitialStateType["pollOptions"]) =>
@@ -184,10 +186,33 @@ export const Poll: React.FC = () => {
     return <h1>Loading...</h1>;
   }
 
+  if (meta.isSummarized) {
+    let labelsData = Object.keys(pollOptions).reduce(
+      ([labels, data]: Array<Array<string | number>>, key: string) => {
+        return [
+          labels.concat(pollOptions[key].text),
+          data.concat(Object.keys(pollOptions[key].votes).length),
+        ];
+      },
+      [[], []]
+    );
+
+    let backGroundColor = Array(Object.keys(pollOptions).length)
+      .fill(0)
+      .map((_) => getRandomColor({ format: "rgb", luminosity: "light" }));
+    return (
+      <PieChart
+        data={labelsData[1] as number[]}
+        labels={labelsData[0] as string[]}
+        label="Results"
+        backgroundColor={backGroundColor}
+      />
+    );
+  }
+
   const isCreator = meta.pollCreator === state.userID;
   const hasAlreadyVoted = Object.keys(meta.alreadyVoted).includes(state.userID);
 
-  //TODO refactor to separate views => //TODO For a user who voted, for those who voted
   //TODO verdict button => //TODO verdict component
   //TODO limit reconnect attempts
   //TODO optional username input for non-creators
@@ -201,9 +226,9 @@ export const Poll: React.FC = () => {
         {Object.keys(users).map((userID: string) => {
           let user = users[userID];
           return meta.anonymousVoting ? (
-            <Avatar src={ah} key={userID} />
+            <StyledAvatar src={ah} key={userID} />
           ) : (
-            <Avatar
+            <StyledAvatar
               src={user.photoURL}
               alt={getInitials(user.username)}
               key={userID}
@@ -227,7 +252,7 @@ export const Poll: React.FC = () => {
         {isCreator && hasAlreadyVoted && (
           <StyledButton
             endIcon={<TimerRoundedIcon />}
-            onClick={handleOnVerdictClick}
+            onClick={handleOnSummarizeClick}
             disabled={!areThereEnoughVotes}
           >
             Verdict
