@@ -44,7 +44,7 @@ app.post("/get_link", async (req, res) => {
       anonymousVoting,
       pollCreator: userID,
       alreadyVoted: {},
-      hasEnded: false,
+      isSummarized: false,
       createdAt: Date.now(),
     },
   });
@@ -142,7 +142,13 @@ io.on("connection", async (socket: any) => {
     console.log("someone voted: ....", session);
   });
 
-  socket.on("verdict", () => {});
+  socket.on("summarize", () => {
+    io.to(sessionID)
+      .to(socket.userID)
+      .emit("summarize", {
+        meta: sessionStore.summarizeSession(sessionID).meta,
+      });
+  });
 
   socket.on("disconnect", () => {
     console.log("disconnected");
