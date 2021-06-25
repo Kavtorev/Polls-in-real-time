@@ -92,23 +92,23 @@ io.use((socket: any, next) => {
   next();
 });
 
-io.on("connection", (socket: any) => {
+io.on("connection", async (socket: any) => {
   let sessionID = socket.sessionID;
   let session = sessionStore.getSessionById(sessionID);
   let users: any = {};
-
-  for (let instance of io.of("/").sockets) {
-    let socket = instance[1] as any;
-    users[socket.userID] = {
-      username: socket.username,
-      photoURL: socket.photoURL,
-    };
-  }
 
   // join session...
   socket.join(sessionID);
   // to be in sync with multiple tabs
   socket.join(socket.userID);
+  // sockets - a list of Sockets for a 'sesionID' room
+  const sockets = (await io.in(sessionID).fetchSockets()) as any;
+  for (let { username, photoURL, userID } of sockets) {
+    users[userID] = {
+      username,
+      photoURL,
+    };
+  }
   // send sessions' data
   socket.emit("session", {
     pollOptions: session.pollOptions,
