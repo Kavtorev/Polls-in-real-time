@@ -7,7 +7,7 @@ import { SESSION_EXPIRY_TIME_MS } from "./config/session";
 import { IN_PROD } from "./config/app";
 
 const app: Application = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const sessionStore = new SessionStore();
 
 const getUniqueId = () => nanoid();
@@ -56,7 +56,7 @@ app.post("validate_session", async (req, res) => {
   let { id } = req.body;
 });
 
-const server = app.listen(process.env.PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is listening at http://localhost:${PORT}`);
 });
 
