@@ -23,6 +23,10 @@ export default class SessionStore {
     return this.sessions.entries();
   }
 
+  removeSession(id: string) {
+    return this.sessions.delete(id);
+  }
+
   createSession(id: string, session: any) {
     this.sessions.set(id, session);
   }

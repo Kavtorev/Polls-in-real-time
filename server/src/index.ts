@@ -1,7 +1,6 @@
 import express, { Application, Request, Response } from "express";
 import { Server, Socket } from "socket.io";
 import { nanoid } from "nanoid";
-import { baseUrl } from "./config/app";
 import SessionStore from "./SessionStore";
 import { SESSION_EXPIRY_TIME_MS } from "./config/session";
 
@@ -102,13 +101,16 @@ io.on("connection", async (socket: any) => {
   // to be in sync with multiple tabs
   socket.join(socket.userID);
   // sockets - a list of Sockets for a 'sesionID' room
-  const sockets = (await io.in(sessionID).fetchSockets()) as any;
-  for (let { username, photoURL, userID } of sockets) {
-    users[userID] = {
-      username,
-      photoURL,
-    };
-  }
+  try {
+    const sockets = (await io.in(sessionID).fetchSockets()) as any;
+    for (let { username, photoURL, userID } of sockets) {
+      users[userID] = {
+        username,
+        photoURL,
+      };
+    }
+  } catch (error) {}
+
   // send sessions' data
   socket.emit("session", {
     pollOptions: session.pollOptions,
@@ -132,7 +134,9 @@ io.on("connection", async (socket: any) => {
         };
       }
       // unique votes
-      session.meta.alreadyVoted[socket.userID] = { username: socket.username };
+      session.meta.alreadyVoted[socket.userID] = {
+        username: socket.username,
+      };
 
       io.to(sessionID).to(socket.userID).emit("voted", {
         pollOptions: session.pollOptions,
@@ -148,6 +152,11 @@ io.on("connection", async (socket: any) => {
       .emit("summarize", {
         meta: sessionStore.summarizeSession(sessionID).meta,
       });
+  });
+
+  socket.on("close_poll", ({ userID }: { userID: string }) => {
+    sessionStore.removeSession(sessionID);
+    io.to(sessionID).to(socket.userID).emit("close_poll", { userID });
   });
 
   socket.on("disconnect", () => {
