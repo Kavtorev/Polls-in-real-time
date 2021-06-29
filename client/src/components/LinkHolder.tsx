@@ -1,11 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { usePollContext } from "../globalProvider";
-import { StyledButton } from "../components/StyledButton";
 import { toast } from "react-toastify";
 import { makeStyles } from "@material-ui/styles";
 import Tooltip from "@material-ui/core/Tooltip";
-import ShareRoundedIcon from "@material-ui/icons/ShareRounded";
+import { SocialMediaShareButton } from "./SocialMediaShareButton";
 
 const StyledLinkHolderContainer = styled.div`
   margin-top: calc(var(--top-bottom-margin) * 2);
@@ -47,21 +46,6 @@ const StyledLinkText = styled.div`
   white-space: nowrap;
 `;
 
-const StyledShareButtonStyles = makeStyles({
-  root: {
-    backgroundColor: "transparent",
-    color: "currentColor",
-    width: "30px",
-    padding: 0,
-    height: "inherit",
-    marginTop: 0,
-    "&:hover": {
-      boxShadow: "none",
-      backgroundColor: "transparent",
-    },
-  },
-});
-
 export const LinkHolder: React.FC = () => {
   let { state } = usePollContext();
   let voteURL = `${window.location.host}/poll/${state.sessionID}`;
@@ -79,9 +63,7 @@ export const LinkHolder: React.FC = () => {
       <StyledLinkHolder active={!!voteURL}>
         <StyledLinkText onClick={handleLinkTextClick}>{voteURL}</StyledLinkText>
         <Tooltip title="Share the link">
-          <StyledButton className={StyledShareButtonStyles().root}>
-            <ShareRoundedIcon />
-          </StyledButton>
+          <SocialMediaShareButton />
         </Tooltip>
       </StyledLinkHolder>
     </StyledLinkHolderContainer>
