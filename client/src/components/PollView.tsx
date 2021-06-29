@@ -3,7 +3,7 @@ import { OptionsList } from "../components/OptionsList";
 import { InitialStateType } from "../globalProvider";
 import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
 import { getInitials } from "../lib/utils";
-import Avatar from "@material-ui/core/Avatar";
+import { StyledAvatar } from "./Avatar";
 import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import styled from "styled-components";
 
@@ -35,7 +35,7 @@ export const PollView: React.FC<{
               {Object.keys(pollOptions[id].votes).map((voteID) => {
                 let vote = pollOptions[id].votes[voteID];
                 return (
-                  <Avatar
+                  <StyledAvatar
                     key={id + voteID}
                     alt={getInitials(vote.username)}
                     src={vote.photoURL}

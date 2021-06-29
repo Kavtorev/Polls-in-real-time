@@ -12,17 +12,6 @@ export const PieChart: React.FC<{
 }> = ({ backgroundColor, data, labels, label }) => {
   let chartRef = useRef<any>(null);
 
-  console.log(
-    "back",
-    backgroundColor,
-    "data",
-    data,
-    "labels",
-    labels,
-    "label",
-    label
-  );
-
   useEffect(() => {
     let pieChart = new Chart(chartRef.current, {
       type: "pie",

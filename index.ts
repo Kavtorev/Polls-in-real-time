@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from "express";
 import { Server, Socket } from "socket.io";
+import path from "path";
 import { nanoid } from "nanoid";
 import SessionStore from "./SessionStore";
 import { SESSION_EXPIRY_TIME_MS } from "./config/session";
@@ -10,18 +11,12 @@ const sessionStore = new SessionStore();
 
 const getUniqueId = () => nanoid();
 
-// don't forget to pass a deep copy...
-const getUserVotes = (options: any, userID: string) => {
-  for (let key in options) {
-    let option = options[key];
-    if (option.votes[userID]) {
-      option.selected = true;
-    }
-  }
-  return options;
-};
-
 app.use(express.json());
+app.use("/", express.static(path.join(__dirname, "client", "build")));
+app.get("/", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "client/build/index.html"));
+});
+
 app.post("/get_link", async (req, res) => {
   // get stuff from body
   let { userID, pollName, pollOptions, multipleAnswers, anonymousVoting } =
@@ -66,10 +61,6 @@ const io = new Server(server, {
     origin: "http://localhost:3000",
   },
 });
-
-// setInterval(() => {
-//   console.log("setInterval is executed every second....");
-// }, 1000);
 
 io.use((socket: any, next) => {
   let { sessionID, userID, username, photoURL } = socket.handshake.auth;
