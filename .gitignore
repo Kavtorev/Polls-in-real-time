@@ -3,7 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=react,node,dotenv
 
 ### dotenv ###
-.env
+# .env
 
 ### Node ###
 # Logs
