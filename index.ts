@@ -4,6 +4,7 @@ import path from "path";
 import { nanoid } from "nanoid";
 import SessionStore from "./SessionStore";
 import { SESSION_EXPIRY_TIME_MS } from "./config/session";
+import { IN_PROD } from "./config/app";
 
 const app: Application = express();
 const PORT = 5000;
@@ -12,10 +13,13 @@ const sessionStore = new SessionStore();
 const getUniqueId = () => nanoid();
 
 app.use(express.json());
-app.use("/", express.static(path.join(__dirname, "client", "build")));
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "client/build/index.html"));
-});
+
+if (IN_PROD) {
+  app.use("/", express.static(path.join(__dirname, "client", "build")));
+  app.get("/", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client/build/index.html"));
+  });
+}
 
 app.post("/get_link", async (req, res) => {
   // get stuff from body
