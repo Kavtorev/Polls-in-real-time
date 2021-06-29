@@ -56,7 +56,7 @@ app.post("validate_session", async (req, res) => {
   let { id } = req.body;
 });
 
-const server = app.listen(PORT, () => {
+const server = app.listen(process.env.PORT, () => {
   console.log(`Server is listening at http://localhost:${PORT}`);
 });
 
