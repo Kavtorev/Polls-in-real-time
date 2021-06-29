@@ -10,7 +10,7 @@ import {
   usePollContext,
 } from "../globalProvider";
 import { StyledButton } from "../components/StyledButton";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { LinkHolder } from "../components/LinkHolder";
 import { getInitials } from "../lib/utils";
 import TimerRoundedIcon from "@material-ui/icons/TimerRounded";
@@ -22,6 +22,7 @@ import CheckRoundedIcon from "@material-ui/icons/CheckRounded";
 import styled from "styled-components";
 import { PieChart } from "../components/PieChart";
 import getRandomColor from "randomcolor";
+import { toast } from "react-toastify";
 
 const SERVER_URL = "http://localhost:5000";
 
@@ -32,8 +33,11 @@ const StyledPollFooter = styled.div`
 
 export const Poll: React.FC = () => {
   let socketRef = useRef<Socket>();
-  let { state } = usePollContext();
+  let history = useHistory();
+  let { state, dispatch } = usePollContext();
   let { id } = useParams<{ id: string }>();
+  // to avoid confusion, meta object has 'isSummarized' property which means: count votes and show a pie chart
+  let [isPollFinished, setIsPollFinished] = useState(false);
 
   let [pollOptions, setPollOptions] = useState<InitialStateType["pollOptions"]>(
     { "": { text: "", selected: false, votes: {} } }
@@ -94,7 +98,8 @@ export const Poll: React.FC = () => {
   };
 
   const OnConnectError = (error: any) => {
-    console.log("Can't connect:", error.message);
+    setIsPollFinished(true);
+    toast("Connection error.", { position: "top-right" });
   };
 
   const OnVoted = ({ pollOptions, meta }: { pollOptions: any; meta: any }) => {
@@ -104,8 +109,26 @@ export const Poll: React.FC = () => {
   };
 
   const OnSummarize = ({ meta }: { meta: any }) => {
-    // receiving meta to track the 'hasEnded flag'
+    // receiving meta to track the 'isSummarized flag'
     setMeta(meta);
+  };
+
+  const OnConnect = () => setIsPollFinished(false);
+
+  const connectClient = () => {
+    setIsPollFinished(false);
+    socketRef.current?.connect();
+  };
+
+  const OnPollClose = ({ userID }: { userID: string }) => {
+    setIsPollFinished(true);
+
+    if (userID === state.userID) {
+      dispatch({ type: "closePoll" });
+      history.push("/");
+    }
+
+    socketRef.current?.disconnect();
   };
 
   const setUpSocket = () => {
@@ -117,6 +140,7 @@ export const Poll: React.FC = () => {
         username: state.username,
         photoURL: state.photoURL,
       },
+      reconnectionAttempts: 5,
     });
 
     socketRef.current.on("session", OnSession);
@@ -125,7 +149,11 @@ export const Poll: React.FC = () => {
     socketRef.current.on("connect_error", OnConnectError);
     socketRef.current.on("voted", OnVoted);
     socketRef.current.on("summarize", OnSummarize);
-    socketRef.current.connect();
+    socketRef.current.on("connect", OnConnect);
+    socketRef.current.on("close_poll", OnPollClose);
+
+    connectClient();
+
     socketRef.current.onAny((event: any, ...args: any) => {
       console.log(event, args);
     });
@@ -175,12 +203,30 @@ export const Poll: React.FC = () => {
     socketRef.current?.emit("summarize");
   };
 
+  const handleOnClosePollClick = () => {
+    socketRef.current?.emit("close_poll", { userID: state.userID });
+  };
+
   const hasSelected = (options: InitialStateType["pollOptions"]) =>
     Object.keys(options).some((key) => options[key].selected);
 
   const areThereEnoughVotes = () => {
     return Object.keys(meta.alreadyVoted).length > 0;
   };
+
+  if (isPollFinished) {
+    return (
+      <>
+        <h2>
+          Either you are experiencing connection problems or the selected poll
+          has been deleted.😞
+        </h2>
+        <StyledButton alignRight={true} onClick={connectClient}>
+          Try Reconnect
+        </StyledButton>
+      </>
+    );
+  }
 
   if (!pollOptions || !users || !meta) {
     return <h1>Loading...</h1>;
@@ -201,23 +247,22 @@ export const Poll: React.FC = () => {
       .fill(0)
       .map((_) => getRandomColor({ format: "rgb", luminosity: "light" }));
     return (
-      <PieChart
-        data={labelsData[1] as number[]}
-        labels={labelsData[0] as string[]}
-        label="Results"
-        backgroundColor={backGroundColor}
-      />
+      <>
+        <PieChart
+          data={labelsData[1] as number[]}
+          labels={labelsData[0] as string[]}
+          label="Results"
+          backgroundColor={backGroundColor}
+        />
+        <StyledButton alignRight={true} onClick={handleOnClosePollClick}>
+          Close the poll
+        </StyledButton>
+      </>
     );
   }
 
   const isCreator = meta.pollCreator === state.userID;
   const hasAlreadyVoted = Object.keys(meta.alreadyVoted).includes(state.userID);
-
-  //TODO verdict button => //TODO verdict component
-  //TODO limit reconnect attempts
-  //TODO optional username input for non-creators
-  //TODO "would be nice to have" better types...
-  //TODO test for errors
 
   return (
     <>

@@ -23,6 +23,7 @@ export type OptionType = {
 };
 
 type ActionsTypes =
+  | { type: "closePoll" }
   | {
       type: "setConfigurationOption";
       payload: "multipleAnswers" | "anonymousVoting";
@@ -77,6 +78,17 @@ export const OPTIONS_LIMIT = 10;
 // TODO move 'isLimitReached' to a 'single source of truth'
 const PollReducer = (state: InitialStateType, action: ActionsTypes) => {
   switch (action.type) {
+    case "closePoll":
+      console.log("triggered");
+      return {
+        ...state,
+        isLimitReached: false,
+        sessionID: "",
+        pollName: "",
+        multipleAnswers: false,
+        anonymousVoting: false,
+        pollOptions: {},
+      };
     case "setPollName":
       return { ...state, pollName: action.payload };
     case "setSessionID":
