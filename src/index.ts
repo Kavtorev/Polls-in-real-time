@@ -13,14 +13,13 @@ const sessionStore = new SessionStore();
 const getUniqueId = () => nanoid();
 
 app.use(express.json());
-if (IN_PROD) {
-  app.use("/", express.static(path.join(__dirname, "..", "client", "build")));
-  app.get("/", (req, res) => {
-    res.sendFile(
-      path.resolve(path.join(__dirname, "..", "client", "build", "index.html"))
-    );
-  });
-}
+
+app.use("/", express.static(path.join(__dirname, "..", "client", "build")));
+app.get("/", (req, res) => {
+  res.sendFile(
+    path.resolve(path.join(__dirname, "..", "client", "build", "index.html"))
+  );
+});
 
 app.post("/get_link", async (req, res) => {
   // get stuff from body
