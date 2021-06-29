@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production ts-node index.ts",
-    "heroku-postbuild": "cd client && npm install && npm run build"
+    "start": "tsc && cross-env NODE_ENV=production node ./build/index.js",
+    "heroku-postbuild": "cd client && npm install && npm run build",
+    "build": "tsc"
   },
   "engines": {"node": "14.16.0"},
   "keywords": [],
