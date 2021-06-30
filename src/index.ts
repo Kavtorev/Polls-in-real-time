@@ -14,15 +14,6 @@ const getUniqueId = () => nanoid();
 
 app.use(express.json());
 
-if (IN_PROD) {
-  app.use("/", express.static(path.join(__dirname, "..", "client", "build")));
-  app.get("/", (req, res) => {
-    res.sendFile(
-      path.resolve(path.join(__dirname, "..", "client", "build", "index.html"))
-    );
-  });
-}
-
 app.post("/get_link", async (req, res) => {
   // get stuff from body
   let { userID, pollName, pollOptions, multipleAnswers, anonymousVoting } =
@@ -54,9 +45,14 @@ app.post("/get_link", async (req, res) => {
   res.json({ sessionID });
 });
 
-app.post("validate_session", async (req, res) => {
-  let { id } = req.body;
-});
+if (IN_PROD) {
+  app.use("/", express.static(path.join(__dirname, "..", "client", "build")));
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.resolve(path.join(__dirname, "..", "client", "build", "index.html"))
+    );
+  });
+}
 
 const server = app.listen(PORT, () => {
   console.log(`Server is listening at http://localhost:${PORT}`);
