@@ -50,9 +50,6 @@ export const Poll: React.FC = () => {
     "": { text: "", selected: false, votes: {} },
   });
 
-  const isCreator = meta.pollCreator === state.userID;
-  const hasAlreadyVoted = Object.keys(meta.alreadyVoted).includes(state.userID);
-
   const OnUserConnected = ({
     id,
     username,
@@ -233,6 +230,10 @@ export const Poll: React.FC = () => {
   if (!pollOptions || !users || !meta) {
     return <h1>Loading...</h1>;
   }
+
+  // ORDER MATTERS!
+  const isCreator = meta.pollCreator === state.userID;
+  const hasAlreadyVoted = Object.keys(meta.alreadyVoted).includes(state.userID);
 
   if (meta.isSummarized) {
     let labelsData = Object.keys(pollOptions).reduce(
