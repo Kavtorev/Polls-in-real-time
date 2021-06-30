@@ -23,8 +23,7 @@ import styled from "styled-components";
 import { PieChart } from "../components/PieChart";
 import getRandomColor from "randomcolor";
 import { toast } from "react-toastify";
-
-const SERVER_URL = "http://localhost:5000";
+import { HOST } from "../config";
 
 const StyledPollFooter = styled.div`
   display: flex;
@@ -132,7 +131,7 @@ export const Poll: React.FC = () => {
   };
 
   const setUpSocket = () => {
-    socketRef.current = io(SERVER_URL, {
+    socketRef.current = io(HOST, {
       autoConnect: false,
       auth: {
         sessionID: id,

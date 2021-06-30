@@ -14,6 +14,7 @@ import {
   WhatsappIcon,
 } from "react-share";
 import { usePollContext } from "../globalProvider";
+import { HOST } from "../config";
 
 const StyledShareButtonStyles = makeStyles({
   root: {
@@ -40,7 +41,7 @@ export const SocialMediaShareButton = () => {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-  const url = `${window.location.host}/${state.sessionID}`;
+  const url = `${HOST}/${state.sessionID}`;
 
   const socialMedia = [
     <RedditShareButton children={[<RedditIcon />]} url={url} />,

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { makeStyles } from "@material-ui/styles";
 import Tooltip from "@material-ui/core/Tooltip";
 import { SocialMediaShareButton } from "./SocialMediaShareButton";
+import { HOST } from "../config";
 
 const StyledLinkHolderContainer = styled.div`
   margin-top: calc(var(--top-bottom-margin) * 2);
@@ -48,7 +49,7 @@ const StyledLinkText = styled.div`
 
 export const LinkHolder: React.FC = () => {
   let { state } = usePollContext();
-  let voteURL = `${window.location.host}/poll/${state.sessionID}`;
+  let voteURL = `${HOST}/poll/${state.sessionID}`;
 
   const handleLinkTextClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (state.sessionID) {
