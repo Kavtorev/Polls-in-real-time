@@ -50,6 +50,9 @@ export const Poll: React.FC = () => {
     "": { text: "", selected: false, votes: {} },
   });
 
+  const isCreator = meta.pollCreator === state.userID;
+  const hasAlreadyVoted = Object.keys(meta.alreadyVoted).includes(state.userID);
+
   const OnUserConnected = ({
     id,
     username,
@@ -253,15 +256,14 @@ export const Poll: React.FC = () => {
           label="Results"
           backgroundColor={backGroundColor}
         />
-        <StyledButton alignRight={true} onClick={handleOnClosePollClick}>
-          Close the poll
-        </StyledButton>
+        {isCreator && (
+          <StyledButton alignRight={true} onClick={handleOnClosePollClick}>
+            Close the poll
+          </StyledButton>
+        )}
       </>
     );
   }
-
-  const isCreator = meta.pollCreator === state.userID;
-  const hasAlreadyVoted = Object.keys(meta.alreadyVoted).includes(state.userID);
 
   return (
     <>
@@ -280,7 +282,7 @@ export const Poll: React.FC = () => {
           );
         })}
       </UsersSlider>
-      {state.userID === meta.pollCreator && <LinkHolder />}
+      {isCreator && <LinkHolder />}
       {!meta.alreadyVoted[state.userID] ? (
         <PollActive
           meta={meta}
