@@ -57,18 +57,14 @@ const App: React.FC = () => {
               key={location.key}
             >
               <Switch location={location}>
-                <Route path="/poll/:id">
-                  <PollPage />
-                </Route>
-
-                {state.sessionID && !location.pathname.startsWith("/poll") ? (
-                  <Redirect to={`/poll/${state.sessionID}`} />
-                ) : null}
                 <Route path="/" exact>
                   <InitPage />
                 </Route>
                 <Route path="/config">
                   <ConfigPage />
+                </Route>
+                <Route path="/poll/:id">
+                  <PollPage />
                 </Route>
                 <Redirect to="/" />
               </Switch>
