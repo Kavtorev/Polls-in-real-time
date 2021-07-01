@@ -60,7 +60,7 @@ export const ConfigPage: React.FC = () => {
             if (extra && Array.isArray(extra)) {
               linksToPolls = extra.map((e, idx) => (
                 <>
-                  <a href={`${HOST}/poll/${e}`}>Poll №{idx}</a>
+                  <a href={`/poll/${e}`}>Poll №{idx}</a>
                   <br />
                 </>
               ));
