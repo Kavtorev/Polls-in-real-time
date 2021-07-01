@@ -1,10 +1,11 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import { Server, Socket } from "socket.io";
 import path from "path";
 import { nanoid } from "nanoid";
 import SessionStore from "./SessionStore";
 import { SESSION_EXPIRY_TIME_MS } from "./config/session";
 import { IN_PROD } from "./config/app";
+import { LimitExceededError } from "./errors";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -14,18 +15,23 @@ const getUniqueId = () => nanoid();
 
 app.use(express.json());
 
-app.post("/get_link", async (req, res) => {
-  // get stuff from body
+app.post("/get_link", (req, res, next) => {
   let { userID, pollName, pollOptions, multipleAnswers, anonymousVoting } =
     req.body;
 
+  let [sessionIdentifiers, isLimitExceeded] =
+    sessionStore.isLimitExceeded(userID);
+
+  if (isLimitExceeded) {
+    throw new LimitExceededError(
+      `You have exceeded the limit of ${SessionStore.limit} polls`,
+      sessionIdentifiers as string[]
+    );
+  }
+
   //TODO validate stuff from body
 
-  // generate a unique hash
-
   let sessionID = getUniqueId();
-
-  // create a session
 
   sessionStore.createSession(sessionID, {
     pollOptions,
@@ -39,8 +45,6 @@ app.post("/get_link", async (req, res) => {
       createdAt: Date.now(),
     },
   });
-
-  // response with a link
 
   res.json({ sessionID });
 });
@@ -162,8 +166,9 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({ message: "Not Found" });
 });
 
-app.use((err: any, req: Request, res: Response) => {
-  res
-    .status(err.status || 500)
-    .json({ message: err.message || "Internal server error." });
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  res.status(err.status || 500).json({
+    message: err.message || "Internal server error.",
+    extra: err.extra,
+  });
 });

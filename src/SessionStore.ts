@@ -2,6 +2,7 @@
 
 export default class SessionStore {
   sessions: Map<string, any>;
+  static readonly limit: number = 3;
 
   constructor() {
     this.sessions = new Map();
@@ -29,5 +30,18 @@ export default class SessionStore {
 
   createSession(id: string, session: any) {
     this.sessions.set(id, session);
+  }
+
+  isLimitExceeded(userID: string) {
+    let sessionIdentifiers = [];
+    for (let key of this.sessions.keys()) {
+      if (this.sessions.get(key).meta.pollCreator === userID) {
+        sessionIdentifiers.push(key);
+      }
+    }
+    return [
+      sessionIdentifiers,
+      sessionIdentifiers.length + 1 > SessionStore.limit,
+    ];
   }
 }

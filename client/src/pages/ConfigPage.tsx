@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { CrossIcon } from "../icons/CrossIcon";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
+import { HOST } from "../config";
 
 const StyledHeader = styled.h1`
   font-size: 1.6rem;
@@ -50,7 +51,28 @@ export const ConfigPage: React.FC = () => {
             });
             history.push(`/poll/${sessionID}`);
           },
-          (err) => console.log(err)
+          ({
+            response: {
+              data: { message, extra },
+            },
+          }) => {
+            let linksToPolls = [<></>];
+            if (extra && Array.isArray(extra)) {
+              linksToPolls = extra.map((e, idx) => (
+                <>
+                  <a href={`${HOST}/poll/${e}`}>Poll №{idx}</a>
+                  <br />
+                </>
+              ));
+            }
+            toast(
+              <>
+                {message}
+                <br />
+                {linksToPolls}
+              </>
+            );
+          }
         );
     } else {
       toast("Please provide more than one option...");
