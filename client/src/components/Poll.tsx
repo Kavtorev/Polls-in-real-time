@@ -23,7 +23,7 @@ import styled from "styled-components";
 import { PieChart } from "../components/PieChart";
 import getRandomColor from "randomcolor";
 import { toast } from "react-toastify";
-import { HOST } from "../config";
+import { HOST, IN_PROD } from "../config";
 
 const StyledPollFooter = styled.div`
   display: flex;
@@ -153,9 +153,11 @@ export const Poll: React.FC = () => {
 
     connectClient();
 
-    socketRef.current.onAny((event: any, ...args: any) => {
-      console.log(event, args);
-    });
+    if (IN_PROD) {
+      socketRef.current.onAny((event: any, ...args: any) => {
+        console.log(event, args);
+      });
+    }
   };
 
   useEffect(() => {

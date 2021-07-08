@@ -1,11 +1,11 @@
 import Slider, { Settings } from "react-slick";
 import styled from "styled-components";
 
-export const settings = (slidesToShow: number = 1): Settings => ({
+export const settings = (numberOfElements: number = 1): Settings => ({
   dots: true,
   infinite: false,
   speed: 500,
-  slidesToShow: Math.min(slidesToShow, 4),
+  slidesToShow: Math.min(numberOfElements, 8),
   slidesToScroll: 3,
   responsive: [
     {
@@ -29,17 +29,12 @@ export const UsersSlider = styled(Slider)`
     color: var(--inactive-dark-color);
   }
 
-  .slick-track {
-    margin: var(----top-bottom-margin) 0;
-    .slick-slide.slick-active {
-      width: 60px !important;
-    }
+  .slick-slide {
+    width: auto !important;
+    margin: 0 0.2em;
   }
 
-  .slick-slide,
-  .slick-initialized + div {
-    display: flex;
-    /* justify-content: center;  */
-    width: 100px;
+  .slick-track {
+    margin: 0 !important;
   }
 `;

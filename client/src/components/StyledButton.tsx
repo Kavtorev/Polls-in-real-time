@@ -2,7 +2,7 @@ import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
 
-const useStyles = makeStyles({
+const useStyledButtonStyles = makeStyles({
   root: {
     display: "flex",
     marginLeft: (alignRight) => (alignRight ? "auto" : "1em"),
@@ -30,7 +30,7 @@ export const StyledButton: React.FC<any> = ({
   children,
   ...rest
 }) => {
-  const styles = useStyles(alignRight);
+  const styles = useStyledButtonStyles(alignRight);
   return (
     <Button className={styles.root} {...rest}>
       {children}

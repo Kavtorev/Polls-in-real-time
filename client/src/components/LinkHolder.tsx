@@ -63,7 +63,7 @@ export const LinkHolder: React.FC = () => {
     <StyledLinkHolderContainer>
       <StyledLinkHolder active={!!voteURL}>
         <StyledLinkText onClick={handleLinkTextClick}>{voteURL}</StyledLinkText>
-        <Tooltip title="Share the link">
+        <Tooltip title="Share on social networks">
           <SocialMediaShareButton />
         </Tooltip>
       </StyledLinkHolder>
